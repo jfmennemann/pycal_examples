@@ -51,8 +51,8 @@ m_atom = m_Rb_87
 
 a_s = 5.24e-9  # m
 
-g_F       = -1/2
-m_F       = -1
+g_F = -1/2
+m_F = -1
 m_F_prime = -1
 
 omega_perp = 2 * np.pi * 3e3
