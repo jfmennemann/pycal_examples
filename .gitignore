@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
+# *.so
 
 # Distribution / packaging
 .Python
@@ -14,7 +14,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/
 lib64/
 parts/
 sdist/
@@ -127,3 +127,51 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+
+# Pydev
+.project
+.pydevproject
+.settings/
+
+
+# data_blender/
+# data_hdf5/
+# data_movies/
+
+
+*.hdf5
+*.dat
+
+*.eps
+# *.pdf
+
+*.png
+*.jpg
+*.jpeg
+*.tga
+
+*.mp4
+
+*.m
+
+
+# C extensions
+# *.so
+
+*.o
+*.dir
+
+
+.idea
+
+
+
+
+
+
+
+
+
+
