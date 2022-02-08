@@ -9,9 +9,8 @@ class fig_control_inputs_of_times(object):
     def __init__(self, ax, settings):
         
         self.line_u1_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$u_1$')
-        # self.line_u2_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1, linestyle='--', color=colors.wet_asphalt, label=r'$u_2$')
-        # self.line_u3_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$u_3$')
-        
+        self.line_u2_of_times, = ax.plot(settings.times, np.zeros_like(settings.times), linewidth=1, linestyle='--', color=colors.wet_asphalt, label=r'$u_2$')
+
         self.line_t_indicator, = ax.plot([0, 0], [-0.25, 1.25], linewidth=1, linestyle='--', color=colors.wet_asphalt)
 
         ax.set_xlim(settings.t_min, settings.t_max)
@@ -31,14 +30,13 @@ class fig_control_inputs_of_times(object):
         ax.set_xlabel(r'$t \;\, \mathrm{in} \;\, \mathrm{ms}$')
         ax.set_ylabel(r'control inputs')
         
-        # ax.legend(loc='lower right', bbox_to_anchor=(1.0, 0.05), ncol=1, framealpha=settings.framealpha, fancybox=settings.fancybox)
+        ax.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), ncol=1, framealpha=settings.framealpha, fancybox=settings.fancybox)
 
 
     def update_u(self, u1_of_times, u2_of_times):
 
         self.line_u1_of_times.set_ydata(u1_of_times)
-        # self.line_u2_of_times.set_ydata(u_of_times[1, :])
-        # self.line_u3_of_times.set_ydata(u_of_times[2, :])
+        self.line_u2_of_times.set_ydata(u2_of_times)
     
     
     def update_t(self, t):

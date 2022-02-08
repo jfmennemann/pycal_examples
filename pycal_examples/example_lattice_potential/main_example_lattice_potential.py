@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_3d.figure_3d import Figure3d
 
-from eval_3d import eval_3d
+from eval import my_eval
 
 
 # -------------------------------------------------------------------------------------------------
@@ -275,7 +275,7 @@ n_iter_ground_state = 1000
 while iter_ground_state < n_iter_ground_state:
 
     # =============================================================================================
-    data = eval_3d(solver)
+    data = my_eval(solver)
 
     mu_of_iterations = np.append(mu_of_iterations, data.mu)
     iterations = np.append(iterations, iter_ground_state)
@@ -380,7 +380,7 @@ while n < n_times-1:
 
     t = times[n]
 
-    data = eval_3d(solver)
+    data = my_eval(solver)
 
     if export_psi_of_times_analysis:
 
@@ -445,7 +445,7 @@ assert(n == n_times-1)
 
 t = times[n]
 
-data = eval_3d(solver)
+data = my_eval(solver)
 
 if export_psi_of_times_analysis:
     psi_of_times_analysis[nr_times_analysis, :] = data.psi

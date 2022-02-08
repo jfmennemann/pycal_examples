@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 from figures.figure_3d.figure_3d import Figure3d
 
-from eval_3d import eval_3d
+from eval import my_eval
 
 
 # -------------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ omega_para = 2 * np.pi * 22.5
 omega_delta_detuning = -2 * np.pi * 50e3
 omega_trap_bottom = 2 * np.pi * 1216e3
 omega_rabi_max = 2 * np.pi * 575e3
-gamma_tilt = 1e-26
+gamma_tilt = 4.1 * 1e-26
 
 
 x_min = -2.8e-6
@@ -209,40 +209,12 @@ assert (times_analysis[-1] == t_final)
 
 
 
-# =================================================================================================
-# -----------------------------------------------------------------------------------------
-# t0 = 0e-3
-# t1 = 1e-3
-# t2 = 2e-3
-# t3 = 3e-3
-#
-# u0 = 1.0
-# u1 = 1.0
-# u2 = 0.0
-# u3 = 0.0
-#
-# vec_t = np.array([t0, t1, t2, t3])
-# vec_u = np.array([u0, u1, u2, u3])
-#
-# f = interpolate.PchipInterpolator(vec_t, vec_u)
-#
-# u1_of_times = f(times)
-# # -----------------------------------------------------------------------------------------
-#
-# # -----------------------------------------------------------------------------------------
-# u2_of_times = np.ones((1, n_times))
-# # -----------------------------------------------------------------------------------------
-#
-#
-# u1_final = params_experiment.u1_final
-#
-# u2_max = params_experiment.u2_max
+# -------------------------------------------------------------------------------------------------
+# init control inputs
 
-# =============================================================================================
 quickstart = False
 
 u1_final = 0.56
-u2_max = 4.1
 
 t_ramp_up = 21.5e-3
 
@@ -275,19 +247,16 @@ else:
     u1_3 = 0.65
     u1_4 = u1_final
     u1_5 = u1_final
-# =============================================================================================
 
-# =============================================================================================
 vec_t = np.array([t0, t1, t2, t3, t4, t5])
 
 vec_u1 = np.array([u1_0, u1_1, u1_2, u1_3, u1_4, u1_5])
-vec_u2 = np.array([0, 0, u2_max, 0, 0, 0])
+vec_u2 = np.array([0, 0, 1, 0, 0, 0])
 
 u1_of_times = np.interp(times, vec_t, vec_u1)
 u2_of_times = np.interp(times, vec_t, vec_u2)
+# -------------------------------------------------------------------------------------------------
 
-u_of_times = np.stack((u1_of_times, u2_of_times), axis=1)
-# =============================================================================================
 # =================================================================================================
 
 
@@ -331,7 +300,6 @@ tau = dt
 mu_of_iterations = []
 iterations = []
 
-# iter_ground_state_inc = n_mod_times_analysis
 iter_ground_state_inc = 100
 
 iter_ground_state = 0
@@ -343,7 +311,7 @@ n_iter_ground_state = 5000
 while iter_ground_state < n_iter_ground_state:
 
     # =============================================================================================
-    data = eval_3d(solver)
+    data = my_eval(solver)
 
     mu_of_iterations = np.append(mu_of_iterations, data.mu)
     iterations = np.append(iterations, iter_ground_state)
@@ -423,13 +391,23 @@ solver.set_u_of_times(u2_of_times, 2)
 # =================================================================================================
 
 if export_psi_of_times_analysis:
+
     psi_of_times_analysis = np.zeros((n_times_analysis, Jx, Jy, Jz), dtype=np.complex128)
+
 else:
+
     export_psi_of_times_analysis = None
+
+
+
+delta_phi_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
+
+delta_N_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
 
 density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
 phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+
 phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
 
@@ -448,15 +426,21 @@ while n < n_times-1:
 
     t = times[n]
 
-    data = eval_3d(solver)
+    data = my_eval(solver)
 
     if export_psi_of_times_analysis:
 
         psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
+
+    delta_phi_of_times_analysis[nr_times_analysis] = data.delta_phi
+
+    delta_N_of_times_analysis[nr_times_analysis] = data.delta_N
+
     density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
 
     phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
+
     phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
 
@@ -474,6 +458,9 @@ while n < n_times-1:
     figure_3d.update_data(data)
 
     figure_3d.fig_control_inputs_of_times.update_t(t)
+
+    figure_3d.fig_delta_phi_of_times_analysis.update(delta_phi_of_times_analysis, times_analysis, nr_times_analysis)
+    figure_3d.fig_delta_N_of_times_analysis.update(delta_N_of_times_analysis, times_analysis, nr_times_analysis)
 
     figure_3d.redraw()
 
@@ -513,7 +500,7 @@ assert(n == n_times-1)
 
 t = times[n]
 
-data = eval_3d(solver)
+data = my_eval(solver)
 
 if export_psi_of_times_analysis:
     psi_of_times_analysis[nr_times_analysis, :] = data.psi

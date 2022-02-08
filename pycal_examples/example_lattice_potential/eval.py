@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def eval_3d(solver):
+def my_eval(solver):
 
     dx = solver.get('dx')
     dy = solver.get('dy')

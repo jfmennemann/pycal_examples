@@ -22,6 +22,8 @@ from .fig_density_z_eff import fig_density_z_eff
 from .fig_phase_z_eff import fig_phase_z_eff
 
 from .fig_control_inputs_of_times import fig_control_inputs_of_times
+from .fig_delta_N_of_times_analysis import fig_delta_N_of_times_analysis
+from .fig_delta_phi_of_times_analysis import fig_delta_phi_of_times_analysis
 
 from .. style import colors
 
@@ -146,6 +148,9 @@ class Figure3d(object):
 
         elif t_max == 40:
             t_ticks_major = np.array([0, 10, 20, 30, 40])
+
+        elif t_max == 80:
+            t_ticks_major = np.array([0, 20, 40, 60, 80])
 
         elif t_max == 200:
             t_ticks_major = np.array([0, 40, 80, 120, 160, 200])
@@ -339,10 +344,12 @@ class Figure3d(object):
         ax_10 = self.fig.add_subplot(self.gridspec[1, 0])
         ax_11 = self.fig.add_subplot(self.gridspec[1, 1])
         ax_12 = self.fig.add_subplot(self.gridspec[1, 2])
+        ax_13 = self.fig.add_subplot(self.gridspec[1, 3])
         
         ax_20 = self.fig.add_subplot(self.gridspec[2, 0])
         ax_21 = self.fig.add_subplot(self.gridspec[2, 1])
         ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
+        ax_23 = self.fig.add_subplot(self.gridspec[2, 3])
 
         ax_30 = self.fig.add_subplot(self.gridspec[3, 0])
         ax_40 = self.fig.add_subplot(self.gridspec[4, 0])
@@ -362,6 +369,8 @@ class Figure3d(object):
         self.fig_phase_z_eff = fig_phase_z_eff(ax_40, settings_graphics)
 
         self.fig_control_inputs_of_times = fig_control_inputs_of_times(ax_03, settings_graphics)
+        self.fig_delta_phi_of_times_analysis = fig_delta_phi_of_times_analysis(ax_13, settings_graphics)
+        self.fig_delta_N_of_times_analysis = fig_delta_N_of_times_analysis(ax_23, settings_graphics)
         # =========================================================================================
         
             
