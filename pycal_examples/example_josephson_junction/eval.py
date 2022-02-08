@@ -1,6 +1,31 @@
 import numpy as np
 
 
+def get_indices_x1_x2(V_x, Jx, index_center_x):
+
+    index_x1 = -1
+
+    for jx in range(1, index_center_x + 1):
+
+        if V_x[jx - 1] >= V_x[jx] and V_x[jx] <= V_x[jx + 1]:
+            index_x1 = jx
+            break
+
+    assert (index_x1 > 0)
+
+    index_x2 = -1
+
+    for jx in range(index_center_x, Jx):
+
+        if V_x[jx - 1] >= V_x[jx] and V_x[jx] <= V_x[jx + 1]:
+            index_x2 = jx
+            break
+
+    assert (index_x2 > 0)
+
+    return index_x1, index_x2
+
+
 def compute_psi_complete(psi, fill_boundaries=False):
 
     Jx = psi.shape[0]
@@ -35,7 +60,15 @@ def compute_phase_difference(psi):
     return phase_difference
 
 
-def compute_delta_phi(psi, index_center_x):
+
+def compute_phase_difference_z_x1_x2(psi_z_x1, psi_z_x2):
+
+    phase_difference_z_x1_x2 = np.angle(psi_z_x1 * np.conj(psi_z_x2))
+
+    return phase_difference_z_x1_x2
+
+
+def compute_global_phase_difference(psi, index_center_x):
 
     psi_complete = compute_psi_complete(psi)
 
@@ -50,7 +83,7 @@ def compute_delta_phi(psi, index_center_x):
     return delta_phi
 
 
-def compute_delta_N(psi, dx, dy, dz, index_center_x):
+def compute_number_imbalance(psi, dx, dy, dz, index_center_x):
 
     density = np.real(psi * np.conj(psi))
 
@@ -74,6 +107,8 @@ def my_eval(solver):
     dy = solver.get('dy')
     dz = solver.get('dz')
 
+    Jx = solver.get('Jx')
+
     index_center_x = solver.get('index_center_x')
     index_center_y = solver.get('index_center_y')
     index_center_z = solver.get('index_center_z')
@@ -84,28 +119,28 @@ def my_eval(solver):
     V = solver.get('V')
 
     V_x = np.squeeze(V[:, index_center_y, index_center_z])
-    V_y = np.squeeze(V[index_center_x, :, index_center_z])
-    V_z = np.squeeze(V[index_center_x, index_center_y, :])
 
-    V_xz = np.squeeze(V[:, index_center_y, :])
-    V_xy = np.squeeze(V[:, :, index_center_z])
-
-    data.V = V
+    index_x1, index_x2 = get_indices_x1_x2(V_x, Jx, index_center_x)
 
     data.V_x = V_x
-    data.V_y = V_y
-    data.V_z = V_z
 
-    data.V_xz = V_xz
-    data.V_xy = V_xy
+    data.V_y_x1 = np.squeeze(V[index_x1, :, index_center_z])
+    data.V_y_x2 = np.squeeze(V[index_x2, :, index_center_z])
+
+    data.V_z_x1 = np.squeeze(V[index_x1, index_center_y, :])
+    data.V_z_x2 = np.squeeze(V[index_x2, index_center_y, :])
     # -----------------------------------------------------------------------------------------------------------------
 
     # -----------------------------------------------------------------------------------------------------------------
     psi = solver.get('psi')
 
     psi_x = np.squeeze(psi[:, index_center_y, index_center_z])
-    psi_y = np.squeeze(psi[index_center_x, :, index_center_z])
-    psi_z = np.squeeze(psi[index_center_x, index_center_y, :])
+
+    psi_y_x1 = np.squeeze(psi[index_x1, :, index_center_z])
+    psi_y_x2 = np.squeeze(psi[index_x2, :, index_center_z])
+
+    psi_z_x1 = np.squeeze(psi[index_x1, index_center_y, :])
+    psi_z_x2 = np.squeeze(psi[index_x2, index_center_y, :])
 
     psi_xz = np.squeeze(psi[:, index_center_y, :])
     psi_xy = np.squeeze(psi[:, :, index_center_z])
@@ -113,117 +148,28 @@ def my_eval(solver):
     data.psi = psi
 
     data.psi_x = psi_x
-    data.psi_y = psi_y
-    data.psi_z = psi_z
+
+    data.psi_y_x1 = psi_y_x1
+    data.psi_y_x2 = psi_y_x2
+
+    data.psi_z_x1 = psi_z_x1
+    data.psi_z_x2 = psi_z_x2
 
     data.psi_xz = psi_xz
     data.psi_xy = psi_xy
     # -----------------------------------------------------------------------------------------------------------------
 
     # -----------------------------------------------------------------------------------------------------------------
-    phase = np.angle(psi)
+    data.density_x = np.abs(psi_x) ** 2
 
-    phase_x = np.squeeze(phase[:, index_center_y, index_center_z])
-    phase_y = np.squeeze(phase[index_center_x, :, index_center_z])
-    phase_z = np.squeeze(phase[index_center_x, index_center_y, :])
+    data.density_y_x1 = np.abs(psi_y_x1) ** 2
+    data.density_y_x2 = np.abs(psi_y_x2) ** 2
 
-    phase_xz = np.squeeze(phase[:, index_center_y, :])
-    phase_xy = np.squeeze(phase[:, :, index_center_z])
+    data.density_z_x1 = np.abs(psi_z_x1) ** 2
+    data.density_z_x2 = np.abs(psi_z_x2) ** 2
 
-
-    # ----
-    # phase_z_eff = self.get_phase_z_eff()
-
-    # tmp = dx * dy * np.sum(psi, (0, 1), keepdims=True)
-    tmp = dx * dy * np.sum(psi, (0, 1), keepdims=False)
-
-    # tmp = np.squeeze(tmp)
-
-    phase_z_eff = np.angle(tmp)
-    # ----
-
-    data.phase_x = phase_x
-    data.phase_y = phase_y
-    data.phase_z = phase_z
-
-    data.phase_xz = phase_xz
-    data.phase_xy = phase_xy
-
-    data.phase_z_eff = phase_z_eff
-    # -----------------------------------------------------------------------------------------------------------------
-
-    # -----------------------------------------------------------------------------------------------------------------
-    density = np.real(psi * np.conj(psi))
-
-    density_x = np.abs(psi_x) ** 2
-    density_y = np.abs(psi_y) ** 2
-    density_z = np.abs(psi_z) ** 2
-
-    density_xz = np.abs(psi_xz) ** 2
-    density_xy = np.abs(psi_xy) ** 2
-
-    # ----
-    # density_x_eff = self.get_density_x_eff()
-
-    density_x_eff = dy * dz * np.sum(density, (1, 2), keepdims=False)
-    # density_x_eff = np.squeeze(density_x_eff)
-    # ----
-
-    # ----
-    # density_y_eff = self.get_density_y_eff()
-
-    density_y_eff = dx * dz * np.sum(density, (0, 2), keepdims=False)
-    # density_y_eff = np.squeeze(density_y_eff)
-    # ----
-
-    # ----
-    # density_z_eff = self.get_density_z_eff()
-
-    density_z_eff = dx * dy * np.sum(density, (0, 1), keepdims=False)
-    # density_z_eff = np.squeeze(density_z_eff)
-    # ----
-
-    data.density = density
-
-    data.density_x = density_x
-    data.density_y = density_y
-    data.density_z = density_z
-
-    data.density_xz = density_xz
-    data.density_xy = density_xy
-
-    data.density_x_eff = density_x_eff
-    data.density_y_eff = density_y_eff
-    data.density_z_eff = density_z_eff
-    # -----------------------------------------------------------------------------------------------------------------
-
-    # -----------------------------------------------------------------------------------------------------------------
-    # ----
-    real_part = np.real(psi)
-
-    real_part_x = np.real(psi_x)
-    real_part_y = np.real(psi_y)
-    real_part_z = np.real(psi_z)
-
-    imag_part_x = np.imag(psi_x)
-    imag_part_y = np.imag(psi_y)
-    imag_part_z = np.imag(psi_z)
-
-    real_part_xz = np.real(psi_xz)
-    real_part_xy = np.real(psi_xy)
-
-    data.real_part = real_part
-
-    data.real_part_x = real_part_x
-    data.real_part_y = real_part_y
-    data.real_part_z = real_part_z
-
-    data.imag_part_x = imag_part_x
-    data.imag_part_y = imag_part_y
-    data.imag_part_z = imag_part_z
-
-    data.real_part_xz = real_part_xz
-    data.real_part_xy = real_part_xy
+    data.density_xz = np.abs(psi_xz) ** 2
+    data.density_xy = np.abs(psi_xy) ** 2
     # -----------------------------------------------------------------------------------------------------------------
 
     # -----------------------------------------------------------------------------------------------------------------
@@ -235,11 +181,23 @@ def my_eval(solver):
     # -----------------------------------------------------------------------------------------------------------------
 
     # -----------------------------------------------------------------------------------------------------------------
-    data.delta_phi = compute_delta_phi(psi, index_center_x)
+    data.global_phase_difference = compute_global_phase_difference(psi, index_center_x)
     # -----------------------------------------------------------------------------------------------------------------
 
     # -----------------------------------------------------------------------------------------------------------------
-    data.delta_N = compute_delta_N(psi, dx, dy, dz, index_center_x)
+    data.number_imbalance = compute_number_imbalance(psi, dx, dy, dz, index_center_x)
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    phase_difference = compute_phase_difference(psi)
+
+    phase_difference_xz = np.squeeze(phase_difference[:, index_center_y, :])
+
+    data.phase_difference_xz = phase_difference_xz
+    # -----------------------------------------------------------------------------------------------------------------
+
+    # -----------------------------------------------------------------------------------------------------------------
+    data.phase_difference_z_x1_x2 = compute_phase_difference_z_x1_x2(psi_z_x1, psi_z_x2)
     # -----------------------------------------------------------------------------------------------------------------
 
     return data

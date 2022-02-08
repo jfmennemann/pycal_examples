@@ -13,10 +13,9 @@ class fig_density_z(object):
         self.hbar = settings.hbar
 
         self.m_atom = settings.m_atom
-    
 
-        self.line_density_z, = ax.plot(settings.z, zeros_like(settings.z), linewidth=1, linestyle='-', color=colors.wet_asphalt)
-        # self.line_density_z_x1, = ax.plot(settings.z, zeros_like(settings.z), linewidth=1, linestyle='-', color=colors.wet_asphalt)
+        self.line_density_z_x1, = ax.plot(settings.z, zeros_like(settings.z), linewidth=1, linestyle='-', color=colors.peter_river, label=r'$|\psi(x_1, 0, z)|^2$')
+        self.line_density_z_x2, = ax.plot(settings.z, zeros_like(settings.z), linewidth=1, linestyle='-', color=colors.wet_asphalt, label=r'$|\psi(x_2, 0, z)|^2$')
         
         ax.set_xlim(settings.z_min, settings.z_max)
         
@@ -30,12 +29,14 @@ class fig_density_z(object):
         ax.grid(b=True, which='major', color=settings.color_gridlines_major, linestyle='-', linewidth=0.5)
         
         ax.set_ylabel(settings.ylabel_density_x_y_z)
+
+        ax.legend(loc='upper left', bbox_to_anchor=(0.0, 1.0), fancybox=settings.fancybox, framealpha=settings.framealpha, ncol=1)
         
         
         
-        ax_V_z = ax.twinx()
+        ax_V_z_x1 = ax.twinx()
     
-        self.line_V_z, = ax_V_z.plot(settings.z, zeros_like(settings.z), linewidth=1, linestyle='-', color=colors.sun_flower)
+        self.line_V_z_x1, = ax_V_z_x1.plot(settings.z, zeros_like(settings.z), linewidth=1, linestyle='-', color=colors.sun_flower, label=r'$V(x_1, 0, z)$')
         
         
         # -----------------------------------------------------------------------------------------
@@ -48,23 +49,24 @@ class fig_density_z(object):
         # ax_V_z.plot(settings.z, V_z_comparison_2 / (self.hbar * 2.0 * np.pi * 1000), linewidth=1, linestyle='--', color=colors.sun_flower)
         # -----------------------------------------------------------------------------------------
 
-        ax_V_z.set_xlim(settings.z_min, settings.z_max)
-        ax_V_z.set_ylim(settings.potential_min, settings.potential_max)
+        ax_V_z_x1.set_xlim(settings.z_min, settings.z_max)
+        ax_V_z_x1.set_ylim(settings.potential_min, settings.potential_max)
         
-        ax_V_z.set_ylabel(settings.ylabel_V_x_y_z)
+        ax_V_z_x1.set_ylabel(settings.ylabel_V_x_y_z)
         
-        # ax_V_z.legend(loc='upper right', bbox_to_anchor=(1.0, 1.2), fancybox=settings.fancybox, framealpha=settings.framealpha, ncol=2)
+        ax_V_z_x1.legend(loc='upper right', bbox_to_anchor=(1.0, 1.0), fancybox=settings.fancybox, framealpha=settings.framealpha, ncol=1)
     
     
-    def update(self, density_z, V_z):
+    def update(self, density_z_x1, density_z_x2, V_z_x1):
 
         # print(np.min(density_z))
         # print(np.max(density_z))
         
         scaling_V = (self.hbar * 2 * pi * 1000)
         
-        V_z = V_z / scaling_V
+        V_z_x1 = V_z_x1 / scaling_V
         
-        self.line_density_z.set_ydata(density_z)
+        self.line_density_z_x1.set_ydata(density_z_x1)
+        self.line_density_z_x2.set_ydata(density_z_x2)
 
-        self.line_V_z.set_ydata(V_z)
+        self.line_V_z_x1.set_ydata(V_z_x1)

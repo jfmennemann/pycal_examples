@@ -1,11 +1,8 @@
 import numpy as np
 
-# from ..style import colors
-
 
 class fig_density_xz(object):
-    
-    
+
     def __init__(self, ax, settings):
     
         Jx = settings.Jx
@@ -19,8 +16,15 @@ class fig_density_xz(object):
         ax.set_xticks(settings.z_ticks)
         ax.set_yticks(settings.x_ticks)
         
-        self.image_density_xz = ax.imshow(density_xz, extent=[settings.z_min, settings.z_max, settings.x_min, settings.x_max], 
-                                           cmap=settings.colormap_density, aspect='auto', interpolation='bilinear', vmin=0, vmax=1, origin='lower')
+        self.image_density_xz = ax.imshow(
+                                        density_xz,
+                                        extent=[settings.z_min, settings.z_max, settings.x_min, settings.x_max],
+                                        cmap=settings.colormap_density,
+                                        aspect='auto',
+                                        interpolation='bilinear',
+                                        vmin=0,
+                                        vmax=1,
+                                        origin='lower')
     
        
     def update(self, density_xz):

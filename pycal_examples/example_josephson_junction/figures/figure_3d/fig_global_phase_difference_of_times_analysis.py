@@ -3,18 +3,17 @@ import numpy as np
 from .. style import colors
 
 
-class fig_delta_phi_of_times_analysis(object):
+class fig_global_phase_difference_of_times_analysis(object):
 
     def __init__(self, ax, settings):
 
-        self.line_delta_phi_of_times_analysis, = ax.plot([], [], linewidth=1.0, linestyle='-', color=colors.wet_asphalt, label=r'')
-        # self.line_delta_phi_circ_mean_of_z_20_um_of_times_analysis, = ax.plot([], [], linewidth=1.0, linestyle='-', color=colors.peter_river, label=r'circ mean $(20\,\mu \mathrm{m})$')
+        self.line_global_phase_difference_of_times_analysis, = ax.plot([], [], linewidth=1.0, linestyle='-', color=colors.wet_asphalt, label=r'')
 
         ax.set_xlim(settings.t_min, settings.t_max)
         ax.set_ylim(-0.55, 0.55)
 
         ax.set_xlabel(settings.xlabel_phase_difference_of_times_analysis)
-        ax.set_ylabel(r'$\Delta \, \phi\; / \; \pi$')
+        ax.set_ylabel(r'$\Delta \, \Phi\; / \; \pi$')
 
         ax.set_xticks(settings.t_ticks_major, minor=False)
         ax.set_xticks(settings.t_ticks_minor, minor=True)
@@ -29,9 +28,9 @@ class fig_delta_phi_of_times_analysis(object):
 
 
     def update(self,
-               delta_phi_of_times_analysis,
+               global_phase_difference_of_times_analysis,
                times_analysis,
                nr_times_analysis):
 
-        self.line_delta_phi_of_times_analysis.set_ydata(delta_phi_of_times_analysis[0:nr_times_analysis] / np.pi)
-        self.line_delta_phi_of_times_analysis.set_xdata(times_analysis[0:nr_times_analysis] / 1e-3)
+        self.line_global_phase_difference_of_times_analysis.set_ydata(global_phase_difference_of_times_analysis[0:nr_times_analysis] / np.pi)
+        self.line_global_phase_difference_of_times_analysis.set_xdata(times_analysis[0:nr_times_analysis] / 1e-3)

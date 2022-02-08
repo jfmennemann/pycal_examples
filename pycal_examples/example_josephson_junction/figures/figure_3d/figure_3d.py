@@ -14,16 +14,18 @@ from .fig_density_x import fig_density_x
 from .fig_density_y import fig_density_y
 from .fig_density_z import fig_density_z
 
-from .fig_real_part_x import fig_real_part_x
-from .fig_real_part_y import fig_real_part_y
-from .fig_real_part_z import fig_real_part_z
 
-from .fig_density_z_eff import fig_density_z_eff
-from .fig_phase_z_eff import fig_phase_z_eff
+
+from .fig_phase_difference_xz import fig_phase_difference_xz
+
+from .fig_phase_difference_z_x1_x2 import fig_phase_difference_z_x1_x2
 
 from .fig_control_inputs_of_times import fig_control_inputs_of_times
-from .fig_delta_N_of_times_analysis import fig_delta_N_of_times_analysis
-from .fig_delta_phi_of_times_analysis import fig_delta_phi_of_times_analysis
+
+from .fig_global_phase_difference_of_times_analysis import fig_global_phase_difference_of_times_analysis
+
+from .fig_number_imbalance_of_times_analysis import fig_number_imbalance_of_times_analysis
+
 
 from .. style import colors
 
@@ -347,12 +349,12 @@ class Figure3d(object):
         ax_13 = self.fig.add_subplot(self.gridspec[1, 3])
         
         ax_20 = self.fig.add_subplot(self.gridspec[2, 0])
-        ax_21 = self.fig.add_subplot(self.gridspec[2, 1])
-        ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
+        # ax_21 = self.fig.add_subplot(self.gridspec[2, 1])
+        # ax_22 = self.fig.add_subplot(self.gridspec[2, 2])
         ax_23 = self.fig.add_subplot(self.gridspec[2, 3])
 
         ax_30 = self.fig.add_subplot(self.gridspec[3, 0])
-        ax_40 = self.fig.add_subplot(self.gridspec[4, 0])
+        # ax_40 = self.fig.add_subplot(self.gridspec[4, 0])
 
         self.fig_density_xz = fig_density_xz(ax_00, settings_graphics)
         self.fig_density_xy = fig_density_xy(ax_01, settings_graphics)
@@ -361,16 +363,18 @@ class Figure3d(object):
         self.fig_density_y = fig_density_y(ax_11, settings_graphics)
         self.fig_density_x = fig_density_x(ax_12, settings_graphics)
 
-        self.fig_real_part_z = fig_real_part_z(ax_20, settings_graphics)
-        self.fig_real_part_y = fig_real_part_y(ax_21, settings_graphics)
-        self.fig_real_part_x = fig_real_part_x(ax_22, settings_graphics)
+        self.fig_phase_difference_xz = fig_phase_difference_xz(ax_20, settings_graphics)
 
-        self.fig_density_z_eff = fig_density_z_eff(ax_30, settings_graphics)
-        self.fig_phase_z_eff = fig_phase_z_eff(ax_40, settings_graphics)
+        # self.fig_real_part_z = fig_real_part_z(ax_20, settings_graphics)
+        # self.fig_real_part_y = fig_real_part_y(ax_21, settings_graphics)
+        # self.fig_real_part_x = fig_real_part_x(ax_22, settings_graphics)
+
+        # self.fig_density_z_eff = fig_density_z_eff(ax_30, settings_graphics)
+        self.fig_phase_difference_z_x1_x2 = fig_phase_difference_z_x1_x2(ax_30, settings_graphics)
 
         self.fig_control_inputs_of_times = fig_control_inputs_of_times(ax_03, settings_graphics)
-        self.fig_delta_phi_of_times_analysis = fig_delta_phi_of_times_analysis(ax_13, settings_graphics)
-        self.fig_delta_N_of_times_analysis = fig_delta_N_of_times_analysis(ax_23, settings_graphics)
+        self.fig_global_phase_difference_of_times_analysis = fig_global_phase_difference_of_times_analysis(ax_13, settings_graphics)
+        self.fig_number_imbalance_of_times_analysis = fig_number_imbalance_of_times_analysis(ax_23, settings_graphics)
         # =========================================================================================
         
             
@@ -386,60 +390,40 @@ class Figure3d(object):
     def update_data(self, data):
 
         V_x = data.V_x
-        V_y = data.V_y
-        V_z = data.V_z
+
+        V_y_x1 = data.V_y_x1
+
+        V_z_x1 = data.V_z_x1
 
         density_xz = data.density_xz
         density_xy = data.density_xy
 
         density_x = data.density_x
-        density_y = data.density_y
-        density_z = data.density_z
 
-        real_part_x = data.real_part_x
-        real_part_y = data.real_part_y
-        real_part_z = data.real_part_z
+        density_y_x1 = data.density_y_x1
 
-        imag_part_x = data.imag_part_x
-        imag_part_y = data.imag_part_y
-        imag_part_z = data.imag_part_z
+        density_z_x1 = data.density_z_x1
+        density_z_x2 = data.density_z_x2
 
-        density_z_eff = data.density_z_eff
 
-        phase_z_eff = data.phase_z_eff
-        phase_z = data.phase_z
+        phase_difference_xz = data.phase_difference_xz
+
+        phase_difference_z_x1_x2 = data.phase_difference_z_x1_x2
+
 
         self.fig_density_xz.update(density_xz)
         self.fig_density_xy.update(density_xy)
 
         self.fig_density_x.update(density_x, V_x)
-        self.fig_density_y.update(density_y, V_y)
-        self.fig_density_z.update(density_z, V_z)
 
-        self.fig_real_part_x.update(real_part_x, imag_part_x, V_x)
-        self.fig_real_part_y.update(real_part_y, imag_part_y, V_y)
-        self.fig_real_part_z.update(real_part_z, imag_part_z, V_z)
+        self.fig_density_y.update(density_y_x1, V_y_x1)
 
-        self.fig_density_z_eff.update(density_z_eff, V_z)
+        self.fig_density_z.update(density_z_x1, density_z_x2, V_z_x1)
 
-        self.fig_phase_z_eff.update(phase_z_eff, phase_z, V_z)
+        self.fig_phase_difference_xz.update(phase_difference_xz, density_xz)
 
-    # def update_data_time_evolution(self,
-    #                                data_time_evolution,
-    #                                nr_times_analysis):
-    #
-    #     self.fig_delta_phi_of_times_analysis.update(
-    #         data_time_evolution.delta_phi_x1_x2_of_z_psf_circ_mean_00_um_of_times_analysis,
-    #         data_time_evolution.delta_phi_x1_x2_of_z_psf_circ_mean_20_um_of_times_analysis,
-    #         data_time_evolution.times_analysis,
-    #         nr_times_analysis)
-    #
-    #     self.fig_delta_N_of_times_analysis.update(
-    #         data_time_evolution.number_imbalance_mean_of_times_analysis,
-    #         data_time_evolution.number_imbalance_std_of_times_analysis,
-    #         data_time_evolution.number_imbalance_selected_of_times_analysis,
-    #         data_time_evolution.times_analysis,
-    #         nr_times_analysis)
+        self.fig_phase_difference_z_x1_x2.update(phase_difference_z_x1_x2)
+
 
 
     # def update_data_tof_selected(self, data_tof_selected):

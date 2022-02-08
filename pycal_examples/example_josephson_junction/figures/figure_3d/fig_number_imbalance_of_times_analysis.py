@@ -1,11 +1,11 @@
 from .. style import colors
 
 
-class fig_delta_N_of_times_analysis(object):
+class fig_number_imbalance_of_times_analysis(object):
 
     def __init__(self, ax, settings):
 
-        self.line_delta_N_of_times_analysis, = ax.plot([], [], linewidth=1.0, linestyle='-', color=colors.wet_asphalt, label='single run')
+        self.line_number_imbalance_of_times_analysis, = ax.plot([], [], linewidth=1.0, linestyle='-', color=colors.wet_asphalt, label='single run')
 
         # self.line_number_imbalance_mean_of_times_analysis,       = ax.plot([], [], linewidth=1.0, linestyle='-', color=colors.wet_asphalt, label='mean')
 
@@ -36,7 +36,7 @@ class fig_delta_N_of_times_analysis(object):
     def update(self,
                # number_imbalance_mean_of_times_analysis,
                # number_imbalance_std_of_times_analysis,
-               delta_N_of_times_analysis,
+               number_imbalance_of_times_analysis,
                times_analysis,
                nr_times_analysis):
         
@@ -52,5 +52,5 @@ class fig_delta_N_of_times_analysis(object):
         # self.line_number_imbalance_std_bottom_of_times_analysis.set_ydata(number_imbalance_mean_temp - number_imbalance_std_temp)
         # self.line_number_imbalance_std_bottom_of_times_analysis.set_xdata(times_analysis_temp)
 
-        self.line_delta_N_of_times_analysis.set_ydata(delta_N_of_times_analysis[0:nr_times_analysis])
-        self.line_delta_N_of_times_analysis.set_xdata(times_analysis[0:nr_times_analysis]/1e-3)
+        self.line_number_imbalance_of_times_analysis.set_ydata(number_imbalance_of_times_analysis[0:nr_times_analysis])
+        self.line_number_imbalance_of_times_analysis.set_xdata(times_analysis[0:nr_times_analysis]/1e-3)

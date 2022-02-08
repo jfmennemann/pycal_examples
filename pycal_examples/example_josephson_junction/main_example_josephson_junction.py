@@ -184,7 +184,7 @@ dz = solver.get('dz')
 print('solver: dx = {:1.16e}'.format(solver.get('dx')))
 print('solver: dy = {:1.16e}'.format(solver.get('dy')))
 print('solver: dz = {:1.16e}'.format(solver.get('dz')))
-
+print()
 
 
 
@@ -383,12 +383,15 @@ print('mu_initial_state / h: {0:1.4} kHz'.format(mu_initial_state / (1e3 * (2*pi
 
 
 
-solver.set_u_of_times(u1_of_times, 1)
-solver.set_u_of_times(u2_of_times, 2)
+
 
 # =================================================================================================
 # compute time evolution
 # =================================================================================================
+
+solver.set_u_of_times(u1_of_times, 1)
+solver.set_u_of_times(u2_of_times, 2)
+
 
 if export_psi_of_times_analysis:
 
@@ -400,15 +403,15 @@ else:
 
 
 
-delta_phi_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
+global_phase_difference_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
 
-delta_N_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
+number_imbalance_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
 
-density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+# density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
-phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+# phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
-phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
+# phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
 
 n_inc = n_mod_times_analysis
@@ -433,16 +436,15 @@ while n < n_times-1:
         psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
 
-    delta_phi_of_times_analysis[nr_times_analysis] = data.delta_phi
+    global_phase_difference_of_times_analysis[nr_times_analysis] = data.global_phase_difference
 
-    delta_N_of_times_analysis[nr_times_analysis] = data.delta_N
+    number_imbalance_of_times_analysis[nr_times_analysis] = data.number_imbalance
 
-    density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
+    # density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
 
-    phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
+    # phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
 
-    phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
-
+    # phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
     print('----------------------------------------------------------------------------------------')
     print('t:            {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
@@ -459,8 +461,8 @@ while n < n_times-1:
 
     figure_3d.fig_control_inputs_of_times.update_t(t)
 
-    figure_3d.fig_delta_phi_of_times_analysis.update(delta_phi_of_times_analysis, times_analysis, nr_times_analysis)
-    figure_3d.fig_delta_N_of_times_analysis.update(delta_N_of_times_analysis, times_analysis, nr_times_analysis)
+    figure_3d.fig_global_phase_difference_of_times_analysis.update(global_phase_difference_of_times_analysis, times_analysis, nr_times_analysis)
+    figure_3d.fig_number_imbalance_of_times_analysis.update(number_imbalance_of_times_analysis, times_analysis, nr_times_analysis)
 
     figure_3d.redraw()
 
@@ -505,10 +507,10 @@ data = my_eval(solver)
 if export_psi_of_times_analysis:
     psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
-density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
+# density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
 
-phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
-phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
+# phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
+# phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
 print('--------------------------------------------------------------------------------')
 print('t:             {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
@@ -588,10 +590,10 @@ if export_hdf5:
     if export_psi_of_times_analysis:
         tmp.create_dataset("psi_of_times_analysis", data=psi_of_times_analysis, dtype=np.complex128)
 
-    tmp.create_dataset("density_z_eff_of_times_analysis", data=density_z_eff_of_times_analysis, dtype=np.float64)
+    # tmp.create_dataset("density_z_eff_of_times_analysis", data=density_z_eff_of_times_analysis, dtype=np.float64)
 
-    tmp.create_dataset("phase_z_eff_of_times_analysis", data=phase_z_eff_of_times_analysis, dtype=np.float64)
-    tmp.create_dataset("phase_z_of_times_analysis", data=phase_z_of_times_analysis, dtype=np.float64)
+    # tmp.create_dataset("phase_z_eff_of_times_analysis", data=phase_z_eff_of_times_analysis, dtype=np.float64)
+    # tmp.create_dataset("phase_z_of_times_analysis", data=phase_z_of_times_analysis, dtype=np.float64)
 
     tmp.create_dataset("times", data=times)
     tmp.create_dataset("dt", data=dt)
