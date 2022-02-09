@@ -34,7 +34,7 @@ class fig_control_inputs_of_times(object):
         # ax.legend(loc='lower right', bbox_to_anchor=(1.0, 0.05), ncol=1, framealpha=settings.framealpha, fancybox=settings.fancybox)
 
 
-    def update_u(self, u1_of_times, u2_of_times):
+    def update_u(self, u1_of_times):
 
         self.line_u1_of_times.set_ydata(u1_of_times)
         # self.line_u2_of_times.set_ydata(u_of_times[1, :])

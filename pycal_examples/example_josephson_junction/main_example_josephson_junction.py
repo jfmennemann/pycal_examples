@@ -1,4 +1,4 @@
-from pycal import Solver3d
+from pycal import Solver3D
 
 import os
 
@@ -102,7 +102,7 @@ if export_frames:
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver = Solver3d(m_atom=m_atom,
+solver = Solver3D(m_atom=m_atom,
                   a_s=a_s,
                   device='gpu',
                   precision='single',
@@ -284,102 +284,41 @@ figure_3d.fig_control_inputs_of_times.update_t(0.0)
 # -------------------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------------------
-solver.set_V(0.0, 0.0)
-# -------------------------------------------------------------------------------------------------
 
 
 time_total_start = time()
 
+
 # =================================================================================================
+# -------------------------------------------------------------------------------------------------
 # compute ground state solution using imaginary time propagation
-# =================================================================================================
+# -------------------------------------------------------------------------------------------------
 
-tau = dt
+# -------------------------------------------------------------------------------------------------
+u1_0 = u1_of_times[0]
+u2_0 = u2_of_times[0]
 
-mu_of_iterations = []
-iterations = []
+solver.set_V(u1_0, u2_0)
+# -------------------------------------------------------------------------------------------------
 
-iter_ground_state_inc = 100
+# -------------------------------------------------------------------------------------------------
+solver.compute_ground_state(10000)
+# -------------------------------------------------------------------------------------------------
 
-iter_ground_state = 0
-
-elapsed_time = 0.0
-
-n_iter_ground_state = 5000
-
-while iter_ground_state < n_iter_ground_state:
-
-    # =============================================================================================
-    data = my_eval(solver)
-
-    mu_of_iterations = np.append(mu_of_iterations, data.mu)
-    iterations = np.append(iterations, iter_ground_state)
-
-    figure_3d.update_data(data)
-
-    figure_3d.redraw()
-
-    # ---------------------------------------------------------------------------------------------
-    fig_temp = plt.figure("figure_ground_state_convergence", figsize=(6, 3), facecolor="white")
-
-    plt.clf()
-
-    ax_1 = fig_temp.add_subplot(111)
-
-    ax_1.plot(iterations[1:], mu_of_iterations[1:] / (2*pi*hbar), linewidth=1.0, linestyle='-', color='k')
-
-    ax_1.set_xlabel('iteration')
-    ax_1.set_ylabel('mue / h in Hz')
-
-    plt.tight_layout()
-
-    plt.draw()
-    fig_temp.canvas.start_event_loop(0.001)
-    # ----------------------------------------------------------------------------------------------
-
-    print('----------------------------------------------------------------------------------------')
-    print('ground_state_u_0')
-    print()
-    print('iter_ground_state: {0:04d}/{1:04d}'.format(iter_ground_state, n_iter_ground_state))
-    print()
-    print('tau:               {0:1.4e} ms'.format(tau / 1e-3))
-    print()
-    print('N:                 {0:d}'.format(int(np.round(data.N))))
-    print()
-    print('mu / h:           {0:1.4} kHz'.format(data.mu / (1e3 * (2*pi*hbar))))
-    print()
-    print('elapsed_time:      {0:1.4f}'.format(elapsed_time))
-    print('----------------------------------------------------------------------------------------')
-    print()
-    # =============================================================================================
-
-    # =============================================================================================
-    time_1 = time()
-
-    solver.iter_gpe_imaginary_time(tau, iter_ground_state_inc)
-
-    time_2 = time()
-
-    elapsed_time = time_2 - time_1
-
-    iter_ground_state = iter_ground_state + iter_ground_state_inc
-    # =============================================================================================
-
-    if iter_ground_state == 500 or iter_ground_state == 1000 or iter_ground_state == 1500:
-
-        tau = tau / 2.0
-
-plt.close("figure_ground_state_convergence")
-
-
-
-
-
+# -------------------------------------------------------------------------------------------------
 mu_initial_state = solver.get('mu')
 
 print('mu_initial_state / h: {0:1.4} kHz'.format(mu_initial_state / (1e3 * (2*pi*hbar))))
+# -------------------------------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------------------------------
+data = my_eval(solver)
+
+figure_3d.update_data(data)
+
+figure_3d.redraw()
+# -------------------------------------------------------------------------------------------------
+# =================================================================================================
 
 
 
@@ -407,11 +346,6 @@ global_phase_difference_of_times_analysis = np.zeros((n_times_analysis,), dtype=
 
 number_imbalance_of_times_analysis = np.zeros((n_times_analysis,), dtype=np.float64)
 
-# density_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
-
-# phase_z_eff_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
-
-# phase_z_of_times_analysis = np.zeros((n_times_analysis, Jz), dtype=np.float64)
 
 
 n_inc = n_mod_times_analysis
@@ -439,12 +373,6 @@ while n < n_times-1:
     global_phase_difference_of_times_analysis[nr_times_analysis] = data.global_phase_difference
 
     number_imbalance_of_times_analysis[nr_times_analysis] = data.number_imbalance
-
-    # density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
-
-    # phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
-
-    # phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
     print('----------------------------------------------------------------------------------------')
     print('t:            {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
@@ -478,7 +406,6 @@ while n < n_times-1:
     nr_times_analysis = nr_times_analysis + 1
 
 
-
     # ---------------------------------------------------------------------------------------------
     # propagate psi for n_inc time steps
 
@@ -505,12 +432,8 @@ t = times[n]
 data = my_eval(solver)
 
 if export_psi_of_times_analysis:
+
     psi_of_times_analysis[nr_times_analysis, :] = data.psi
-
-# density_z_eff_of_times_analysis[nr_times_analysis, :] = data.density_z_eff
-
-# phase_z_eff_of_times_analysis[nr_times_analysis, :] = data.phase_z_eff
-# phase_z_of_times_analysis[nr_times_analysis, :] = data.phase_z
 
 print('--------------------------------------------------------------------------------')
 print('t:             {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
