@@ -45,6 +45,10 @@ class Figure3d(object):
 
         m_atom = settings_visualization["m_atom"]
 
+        density_max = settings_visualization["density_max"]
+
+        density_z_eff_max = settings_visualization["density_z_eff_max"]
+
 
         potential_max = 10
 
@@ -161,11 +165,10 @@ class Figure3d(object):
 
         settings_graphics = type('', (), {})()
 
-        settings_graphics.density_min = settings_visualization["density_min"]
-        settings_graphics.density_max = settings_visualization["density_max"]
 
-        settings_graphics.density_z_eff_min = settings_visualization["density_z_eff_min"]
-        settings_graphics.density_z_eff_max = settings_visualization["density_z_eff_max"]
+        settings_graphics.density_max = density_max
+
+        settings_graphics.density_z_eff_max = density_z_eff_max
 
 
         settings_graphics.hbar = hbar

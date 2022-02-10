@@ -18,7 +18,8 @@ class fig_density_z_eff(object):
         self.line_density_z_eff, = ax.plot(settings_graphics.z, zeros_like(settings_graphics.z), linewidth=1, linestyle='-', color=colors.wet_asphalt)
 
         ax.set_xlim(settings_graphics.z_min, settings_graphics.z_max)
-        ax.set_ylim(settings_graphics.density_z_eff_min, settings_graphics.density_z_eff_max)
+
+        ax.set_ylim(0.0, settings_graphics.density_z_eff_max)
         
         
         ax.set_xlabel(settings_graphics.xlabel_density_z)

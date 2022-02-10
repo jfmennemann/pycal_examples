@@ -45,9 +45,15 @@ class Figure3d(object):
                  y,
                  z,
                  times,
-                 settings_visualization):
+                 settings_figure_3d):
 
-        m_atom = settings_visualization["m_atom"]
+
+        m_atom = settings_figure_3d["m_atom"]
+
+        density_max = settings_figure_3d["density_max"]
+
+        density_z_eff_max = settings_figure_3d["density_z_eff_max"]
+
 
 
         potential_max = 10
@@ -98,32 +104,35 @@ class Figure3d(object):
         if np.round(z_max) == 5:
             z_ticks = np.array([-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5])
 
-        if np.round(z_max) == 10:
+        elif np.round(z_max) == 10:
             z_ticks = np.array([-10, -5, 0, 5, 10])
 
-        if np.round(z_max) == 20:
+        elif np.round(z_max) == 20:
             z_ticks = np.array([-20, -10, 0, 10, 20])
 
-        if np.round(z_max) == 40:
+        elif np.round(z_max) == 40:
             z_ticks = np.array([-40, -30, -20, -10, 0, 10, 20, 30, 40])
 
-        if np.round(z_max) == 50:
+        elif np.round(z_max) == 50:
             z_ticks = np.array([-50, -40, -30, -20, -10, 0, 10, 20, 30, 40, 50])
 
-        if np.round(z_max) == 54:
+        elif np.round(z_max) == 54:
             z_ticks = np.array([-54, 0, 54])
 
-        if np.round(z_max) == 60:
+        elif np.round(z_max) == 60:
             z_ticks = np.array([-60, -40, -20, 0, 20, 40, 60])
 
-        if np.round(z_max) == 80:
+        elif np.round(z_max) == 80:
             z_ticks = np.array([-80, -60, -40, -20, 0, 20, 40, 60, 80])
 
-        if np.round(z_max) == 100:
+        elif np.round(z_max) == 100:
             z_ticks = np.array([-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100])
 
-        if np.round(z_max) == 200:
+        elif np.round(z_max) == 200:
             z_ticks = np.array([-200, -160, -120, -80, -40, 0, 40, 80, 120, 160, 200])
+
+        else:
+            z_ticks = np.array([z_min, z_max])
 
 
 
@@ -168,18 +177,12 @@ class Figure3d(object):
 
         settings_graphics = type('', (), {})()
 
-        settings_graphics.density_min = settings_visualization["density_min"]
-        settings_graphics.density_max = settings_visualization["density_max"]
-
-        settings_graphics.density_z_eff_min = settings_visualization["density_z_eff_min"]
-        settings_graphics.density_z_eff_max = settings_visualization["density_z_eff_max"]
+        settings_graphics.density_max = density_max
+        settings_graphics.density_z_eff_max = density_z_eff_max
 
 
         settings_graphics.hbar = hbar
         settings_graphics.m_atom = m_atom
-
-
-
 
 
         settings_graphics.ylabel_density_x_y_z = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-3}$'

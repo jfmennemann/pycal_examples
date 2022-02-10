@@ -25,10 +25,14 @@ class fig_density_xz(object):
                                         vmin=0,
                                         vmax=1,
                                         origin='lower')
+
+        self.density_max = settings.density_max
     
        
     def update(self, density_xz):
 
-        image_density_xz = np.squeeze(density_xz) / np.max(density_xz)
-        
+        # image_density_xz = density_xz / self.density_max
+
+        image_density_xz = density_xz / np.max(density_xz)
+
         self.image_density_xz.set_data(image_density_xz)

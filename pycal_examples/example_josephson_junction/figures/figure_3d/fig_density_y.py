@@ -14,7 +14,7 @@ class fig_density_y(object):
         self.m_atom = settings.m_atom
 
         self.line_density_y, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.wet_asphalt)
-        # self.line_density_y_x1, = ax.plot(settings.y, zeros_like(settings.y), linewidth=1, linestyle='-', color=colors.wet_asphalt)
+
         
         ax.set_xlim(settings.y_min, settings.y_max)
         

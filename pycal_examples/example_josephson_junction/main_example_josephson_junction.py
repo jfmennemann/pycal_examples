@@ -37,6 +37,13 @@ export_frames = False
 export_psi_of_times_analysis = False
 # -------------------------------------------------------------------------------------------------
 
+# -------------------------------------------------------------------------------------------------
+# close figures from previous simulation
+
+plt.close('all')
+# -------------------------------------------------------------------------------------------------
+
+
 
 # =================================================================================================
 simulation_id = 'lesanovsky_3d'
@@ -77,7 +84,16 @@ Jy = 2*12
 Jz = 4*60
 
 t_final = 80e-3
-dt = 0.002e-3
+dt = 0.0025e-3
+
+n_mod_times_analysis = 100
+
+device = 'gpu'
+precision = 'double'
+
+seed = 1
+
+visualization = True
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
@@ -101,12 +117,22 @@ if export_frames:
         os.makedirs(path_frames_figure_3d)
 # -------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------
+
+
+
+# =================================================================================================
+# init solver
+# =================================================================================================
+
 solver = Solver3D(m_atom=m_atom,
                   a_s=a_s,
-                  device='gpu',
-                  precision='single',
-                  seed=1)
+                  device=device,
+                  precision=precision,
+                  seed=seed)
+
+# =================================================================================================
+# init grid
+# =================================================================================================
 
 solver.init_grid(x_min=x_min,
                  x_max=x_max,
@@ -117,6 +143,10 @@ solver.init_grid(x_min=x_min,
                  Jx=Jx,
                  Jy=Jy,
                  Jz=Jz)
+
+# =================================================================================================
+# init potential
+# =================================================================================================
 
 solver.init_V(name='lesanovsky',
               g_F=g_F,
@@ -129,8 +159,18 @@ solver.init_V(name='lesanovsky',
               omega_rabi_max=omega_rabi_max,
               gamma_tilt=gamma_tilt)
 
+
+# =================================================================================================
+# init wave function
+# =================================================================================================
+
 solver.init_psi(N)
-# -------------------------------------------------------------------------------------------------
+
+
+
+
+
+
 
 print('solver: seed = {0:d}'.format(solver.get('seed')))
 print()
@@ -188,6 +228,14 @@ print()
 
 
 
+
+time_1 = time()
+
+
+# =================================================================================================
+# init time evolution
+# =================================================================================================
+
 # -------------------------------------------------------------------------------------------------
 solver.init_time_evolution(t_final=t_final, dt=dt)
 
@@ -197,8 +245,6 @@ n_times = times.size
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-n_mod_times_analysis = 100
-
 times_analysis = times[0::n_mod_times_analysis]
 
 n_times_analysis = times_analysis.size
@@ -207,11 +253,11 @@ assert (times_analysis[-1] == t_final)
 # -------------------------------------------------------------------------------------------------
 
 
-
+# =================================================================================================
+# init control inputs
+# =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-# init control inputs
-
 quickstart = False
 
 u1_final = 0.56
@@ -257,42 +303,11 @@ u1_of_times = np.interp(times, vec_t, vec_u1)
 u2_of_times = np.interp(times, vec_t, vec_u2)
 # -------------------------------------------------------------------------------------------------
 
-# =================================================================================================
-
-
-# -------------------------------------------------------------------------------------------------
-plt.close('all')
-
-settings_visualization = {
-    "n_mod_times_analysis": n_mod_times_analysis,
-    "density_min": 0.0,
-    "density_max": 4e20,
-    "density_z_eff_min": 0.0,
-    "density_z_eff_max": 400.0,
-    "V_min": 0.0,
-    "V_max": 20.0,
-    "sigma_z_min": 0.2,
-    "sigma_z_max": 0.6,
-    "m_atom": m_Rb_87
-}
-
-figure_3d = Figure3d(x, y, z, times, settings_visualization)
-
-figure_3d.fig_control_inputs_of_times.update_u(u1_of_times, u2_of_times)
-
-figure_3d.fig_control_inputs_of_times.update_t(0.0)
-# -------------------------------------------------------------------------------------------------
-
-
-
-
-time_total_start = time()
 
 
 # =================================================================================================
-# -------------------------------------------------------------------------------------------------
-# compute ground state solution using imaginary time propagation
-# -------------------------------------------------------------------------------------------------
+# compute ground state solution
+# =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
 u1_0 = u1_of_times[0]
@@ -302,23 +317,93 @@ solver.set_V(u1_0, u2_0)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver.compute_ground_state(10000)
-# -------------------------------------------------------------------------------------------------
+solver.compute_ground_state_solution(n_iter=5000)
 
-# -------------------------------------------------------------------------------------------------
+phi = solver.get('phi')
+
+density_0 = np.abs(phi)**2
+
+density_0_max = np.max(density_0)
+
 mu_initial_state = solver.get('mu')
 
 print('mu_initial_state / h: {0:1.4} kHz'.format(mu_initial_state / (1e3 * (2*pi*hbar))))
 # -------------------------------------------------------------------------------------------------
 
-# -------------------------------------------------------------------------------------------------
-data = my_eval(solver)
 
-figure_3d.update_data(data)
 
-figure_3d.redraw()
-# -------------------------------------------------------------------------------------------------
 # =================================================================================================
+# init figure
+# =================================================================================================
+
+if visualization:
+
+    # ---------------------------------------------------------------------------------------------
+    settings_figure_3d = {
+        "density_max": 1.1 * density_0_max,
+        "density_z_eff_max": 400.0,
+        "V_max": 20.0,
+        "sigma_z_min": 0.2,
+        "sigma_z_max": 0.6,
+        "m_atom": m_Rb_87
+    }
+
+    figure_3d = Figure3d(x, y, z, times, settings_figure_3d)
+
+    figure_3d.fig_control_inputs_of_times.update_u(u1_of_times, u2_of_times)
+
+    figure_3d.fig_control_inputs_of_times.update_t(0.0)
+    # ---------------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    data = my_eval(solver)
+
+    figure_3d.update_data(data)
+
+    figure_3d.redraw()
+    # ---------------------------------------------------------------------------------------------
+
+
+
+
+
+# =================================================================================================
+# thermal state sampling
+# =================================================================================================
+
+n_sgpe_max = 10000
+
+n_sgpe_inc = 1000
+
+n_sgpe = 0
+
+while n_sgpe < n_sgpe_max:
+
+    data = my_eval(solver)
+
+    print('----------------------------------------------------------------------------------------')
+    print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
+    print()
+    print('N:      {0:1.4f}'.format(data.N))
+    print('----------------------------------------------------------------------------------------')
+    print()
+
+    if visualization:
+
+        # -----------------------------------------------------------------------------------------
+        figure_3d.update_data(data)
+
+        figure_3d.redraw()
+        # -----------------------------------------------------------------------------------------
+
+    # ---------------------------------------------------------------------------------------------
+    # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
+
+    solver.iter_sgpe(T_des=20e-9, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
+    # ---------------------------------------------------------------------------------------------
+
+    n_sgpe = n_sgpe + n_sgpe_inc
+
 
 
 
@@ -328,8 +413,13 @@ figure_3d.redraw()
 # compute time evolution
 # =================================================================================================
 
+# -------------------------------------------------------------------------------------------------
+# set first and second control input
+
 solver.set_u_of_times(u1_of_times, 1)
 solver.set_u_of_times(u2_of_times, 2)
+# -------------------------------------------------------------------------------------------------
+
 
 
 if export_psi_of_times_analysis:
@@ -338,7 +428,7 @@ if export_psi_of_times_analysis:
 
 else:
 
-    export_psi_of_times_analysis = None
+    psi_of_times_analysis = None
 
 
 
@@ -356,7 +446,6 @@ stop = False
 
 n = 0
 
-elapsed_time = 0.0
 
 
 while n < n_times-1:
@@ -375,33 +464,33 @@ while n < n_times-1:
     number_imbalance_of_times_analysis[nr_times_analysis] = data.number_imbalance
 
     print('----------------------------------------------------------------------------------------')
-    print('t:            {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
-    print('n:            {0:4d} / {1:4d}'.format(n, n_times))
+    print('t: {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
+    print('n: {0:4d} / {1:4d}'.format(n, n_times))
     print()
-    print('N:            {0:1.4f}'.format(data.N))
-    print()
-    print('elapsed_time: {0:1.2f} s'.format(elapsed_time))
+    print('N: {0:1.4f}'.format(data.N))
     print('----------------------------------------------------------------------------------------')
     print()
 
-    # ---------------------------------------------------------------------------------------------
-    figure_3d.update_data(data)
+    if visualization:
 
-    figure_3d.fig_control_inputs_of_times.update_t(t)
+        # -----------------------------------------------------------------------------------------
+        figure_3d.update_data(data)
 
-    figure_3d.fig_global_phase_difference_of_times_analysis.update(global_phase_difference_of_times_analysis, times_analysis, nr_times_analysis)
-    figure_3d.fig_number_imbalance_of_times_analysis.update(number_imbalance_of_times_analysis, times_analysis, nr_times_analysis)
+        figure_3d.fig_control_inputs_of_times.update_t(t)
 
-    figure_3d.redraw()
+        figure_3d.fig_global_phase_difference_of_times_analysis.update(global_phase_difference_of_times_analysis, times_analysis, nr_times_analysis)
+        figure_3d.fig_number_imbalance_of_times_analysis.update(number_imbalance_of_times_analysis, times_analysis, nr_times_analysis)
 
-    if export_frames:
+        figure_3d.redraw()
 
-        filepath = path_frames_figure_3d + 'frame_' + str(nr_frame).zfill(5) + '.png'
+        if export_frames:
 
-        figure_3d.export(filepath)
+            filepath = path_frames_figure_3d + 'frame_' + str(nr_frame).zfill(5) + '.png'
 
-        nr_frame = nr_frame + 1
-    # ---------------------------------------------------------------------------------------------
+            # figure_3d.export(filepath)
+
+            nr_frame = nr_frame + 1
+        # -----------------------------------------------------------------------------------------
 
     nr_times_analysis = nr_times_analysis + 1
 
@@ -409,13 +498,7 @@ while n < n_times-1:
     # ---------------------------------------------------------------------------------------------
     # propagate psi for n_inc time steps
 
-    time_1 = time()
-
     solver.propagate(n, n_inc)
-
-    time_2 = time()
-
-    elapsed_time = time_2 - time_1
     # ---------------------------------------------------------------------------------------------
 
     n = n + n_inc
@@ -436,36 +519,36 @@ if export_psi_of_times_analysis:
     psi_of_times_analysis[nr_times_analysis, :] = data.psi
 
 print('--------------------------------------------------------------------------------')
-print('t:             {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
-print('n:             {0:4d} / {1:4d}'.format(n, n_times))
+print('t: {0:1.2f} / {1:1.2f}'.format(t / 1e-3, times[-1] / 1e-3))
+print('n: {0:4d} / {1:4d}'.format(n, n_times))
 print()
-print('N:             {0:1.4f}'.format(data.N))
-print()
-print('elapsed_time:  {0:1.2f}'.format(elapsed_time))
+print('N: {0:1.4f}'.format(data.N))
 print('--------------------------------------------------------------------------------')
 print()
 
+if visualization:
+
+    # ---------------------------------------------------------------------------------------------
+    figure_3d.update_data(data)
+
+    figure_3d.fig_control_inputs_of_times.update_t(t)
+
+    figure_3d.redraw()
+
+    if export_frames:
+
+        filepath = path_frames_figure_3d + 'frame_' + str(nr_frame).zfill(5) + '.png'
+
+        figure_3d.export(filepath)
+
+        nr_frame = nr_frame + 1
+    # ---------------------------------------------------------------------------------------------
+
 # -------------------------------------------------------------------------------------------------
-figure_3d.update_data(data)
 
-figure_3d.fig_control_inputs_of_times.update_t(t)
+time_2 = time()
 
-figure_3d.redraw()
-
-if export_frames:
-
-    filepath = path_frames_figure_3d + 'frame_' + str(nr_frame).zfill(5) + '.png'
-
-    figure_3d.export(filepath)
-
-    nr_frame = nr_frame + 1
-# -------------------------------------------------------------------------------------------------
-# -------------------------------------------------------------------------------------------------
-
-
-time_total_end = time()
-
-elapsed_time = time_total_end - time_total_start
+elapsed_time = time_2 - time_1
 
 print("elapsed_time: {0:f}".format(elapsed_time))
 
@@ -550,5 +633,3 @@ if export_hdf5:
 
 plt.ioff()
 plt.show()
-
-# input("done!")
