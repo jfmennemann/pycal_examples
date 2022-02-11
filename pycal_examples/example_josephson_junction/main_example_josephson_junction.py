@@ -124,51 +124,35 @@ if export_frames:
 # init solver
 # =================================================================================================
 
-solver = Solver3D(m_atom=m_atom,
+solver = Solver3D(x_min=x_min,
+                  x_max=x_max,
+                  y_min=y_min,
+                  y_max=y_max,
+                  z_min=z_min,
+                  z_max=z_max,
+                  Jx=Jx,
+                  Jy=Jy,
+                  Jz=Jz,
+                  m_atom=m_atom,
                   a_s=a_s,
                   device=device,
                   precision=precision,
                   seed=seed)
 
 # =================================================================================================
-# init grid
-# =================================================================================================
-
-solver.init_grid(x_min=x_min,
-                 x_max=x_max,
-                 y_min=y_min,
-                 y_max=y_max,
-                 z_min=z_min,
-                 z_max=z_max,
-                 Jx=Jx,
-                 Jy=Jy,
-                 Jz=Jz)
-
-# =================================================================================================
 # init potential
 # =================================================================================================
 
-solver.init_V(name='lesanovsky',
-              g_F=g_F,
-              m_F=m_F,
-              m_F_prime=m_F_prime,
-              omega_perp=omega_perp,
-              omega_para=omega_para,
-              omega_delta_detuning=omega_delta_detuning,
-              omega_trap_bottom=omega_trap_bottom,
-              omega_rabi_max=omega_rabi_max,
-              gamma_tilt=gamma_tilt)
-
-
-# =================================================================================================
-# init wave function
-# =================================================================================================
-
-solver.init_psi(N)
-
-
-
-
+solver.init_potential(name='lesanovsky',
+                      g_F=g_F,
+                      m_F=m_F,
+                      m_F_prime=m_F_prime,
+                      omega_perp=omega_perp,
+                      omega_para=omega_para,
+                      omega_delta_detuning=omega_delta_detuning,
+                      omega_trap_bottom=omega_trap_bottom,
+                      omega_rabi_max=omega_rabi_max,
+                      gamma_tilt=gamma_tilt)
 
 
 
@@ -189,16 +173,13 @@ print('solver: k_B = {:1.16e}'.format(solver.get('k_B')))
 print('python: k_B = {:1.16e}'.format(k_B))
 print('solver: k_B = {:1.16e} (scaled)'.format(solver.get('k_B', units='solver_units')))
 print()
-print('solver: N = {:1.16e}'.format(solver.get('N')))
-print('python: N = {:1.16e}'.format(N))
-print()
 print('solver: a_s = {:1.16e}'.format(solver.get('a_s')))
 print('python: a_s = {:1.16e}'.format(a_s))
 print('solver: a_s = {:1.16e} (scaled)'.format(solver.get('a_s', units='solver_units')))
 print()
-print('solver: m_atom = {:1.16e}'.format(solver.get('m_atom')))
-print('python: m_atom = {:1.16e}'.format(m_atom))
-print('solver: m_atom = {:1.16e} (scaled)'.format(solver.get('m_atom', units='solver_units')))
+print('m_atom = {:1.16e} (solver: si_units)'.format(solver.get('m_atom')))
+print('m_atom = {:1.16e} (python: si_units)'.format(m_atom))
+print('m_atom = {:1.16e} (solver: solver_units)'.format(solver.get('m_atom', units='solver_units')))
 print()
 print('solver: g = {:1.16e}'.format(solver.get('g')))
 print('solver: g = {:1.16e} (scaled)'.format(solver.get('g', units='solver_units')))
@@ -306,7 +287,7 @@ u2_of_times = np.interp(times, vec_t, vec_u2)
 
 
 # =================================================================================================
-# compute ground state solution
+# compute ground state solution phi
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
@@ -317,7 +298,7 @@ solver.set_V(u1_0, u2_0)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver.compute_ground_state_solution(n_iter=5000)
+solver.compute_ground_state_solution(N=N, n_iter=5000)
 
 phi = solver.get('phi')
 
@@ -325,10 +306,18 @@ density_0 = np.abs(phi)**2
 
 density_0_max = np.max(density_0)
 
-mu_initial_state = solver.get('mu')
+mu_phi = solver.get('mu_phi')
 
-print('mu_initial_state / h: {0:1.4} kHz'.format(mu_initial_state / (1e3 * (2*pi*hbar))))
+print('mu_phi / h: {0:1.4} kHz'.format(mu_phi / (1e3 * (2*pi*hbar))))
 # -------------------------------------------------------------------------------------------------
+
+
+# =================================================================================================
+# set wave function psi to ground state solution
+# =================================================================================================
+
+solver.init_psi('ground_state_solution')
+
 
 
 
@@ -362,7 +351,6 @@ if visualization:
 
     figure_3d.redraw()
     # ---------------------------------------------------------------------------------------------
-
 
 
 
