@@ -318,7 +318,7 @@ print('mu_phi / h: {0:1.4} kHz'.format(mu_phi / (1e3 * (2*pi*hbar))))
 
 solver.init_psi('ground_state_solution')
 
-
+input("press any key to continue ...")
 
 
 # =================================================================================================
