@@ -75,10 +75,11 @@ z_max = +20e-6
 
 Jx = 64
 Jy = 64
-Jz = 320
+Jz = 256
 
 t_final = 8e-3
-dt = 0.00025e-3
+# dt = 0.00025e-3
+dt = 0.0025e-3
 
 device = 'gpu'
 precision = 'double'
@@ -132,11 +133,11 @@ solver = Solver3D(x_min=x_min,
 # init potential
 # =================================================================================================
 
-solver.init_potential(name='lattice',
-                      omega_perp=omega_perp,
-                      V_z_0_min=0.0,
-                      V_z_0_max=15.0 * omega_perp * hbar,
-                      k=16)
+solver.init_potential(name='harmonic_xy_lattice_z',
+                      omega_x=omega_perp,
+                      omega_y=omega_perp,
+                      V_lattice_z_max=2.0 * omega_perp * hbar,
+                      k=8)
 
 
 

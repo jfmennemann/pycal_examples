@@ -50,7 +50,8 @@ simulation_id = 'lesanovsky_3d'
 
 simulation_id = simulation_id.replace(".", "_")
 
-N = 3500
+# N = 3500
+N = 10000
 
 m_Rb_87 = 87 * amu  # kg
 
@@ -143,7 +144,18 @@ solver = Solver3D(x_min=x_min,
 # init potential
 # =================================================================================================
 
-solver.init_potential(name='lesanovsky',
+# solver.init_potential(name='lesanovsky',
+#                       g_F=g_F,
+#                       m_F=m_F,
+#                       m_F_prime=m_F_prime,
+#                       omega_perp=omega_perp,
+#                       omega_para=omega_para,
+#                       omega_delta_detuning=omega_delta_detuning,
+#                       omega_trap_bottom=omega_trap_bottom,
+#                       omega_rabi_max=omega_rabi_max,
+#                       gamma_tilt=gamma_tilt)
+
+solver.init_potential(name='lesanovsky_xy',
                       g_F=g_F,
                       m_F=m_F,
                       m_F_prime=m_F_prime,
