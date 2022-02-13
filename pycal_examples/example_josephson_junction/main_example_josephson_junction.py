@@ -50,9 +50,6 @@ simulation_id = 'lesanovsky_3d'
 
 simulation_id = simulation_id.replace(".", "_")
 
-# N = 3500
-N = 10000
-
 m_Rb_87 = 87 * amu  # kg
 
 m_atom = m_Rb_87
@@ -68,8 +65,6 @@ omega_para = 2 * np.pi * 22.5
 omega_delta_detuning = -2 * np.pi * 50e3
 omega_trap_bottom = 2 * np.pi * 1216e3
 omega_rabi_max = 2 * np.pi * 575e3
-gamma_tilt = 4.1 * 1e-26
-
 
 x_min = -2.8e-6
 x_max = +2.8e-6
@@ -84,7 +79,6 @@ Jx = 2*28
 Jy = 2*12
 Jz = 4*60
 
-t_final = 80e-3
 dt = 0.0025e-3
 
 n_mod_times_analysis = 100
@@ -96,6 +90,64 @@ seed = 1
 
 visualization = True
 # =================================================================================================
+
+
+# =================================================================================================
+# additional parameters
+
+# -------------------------------------------------------------------------------------------------
+# lesanovsky (quickstart=false)
+
+name_potential = 'lesanovsky'
+
+quickstart = False
+
+N = 3500
+
+u1_final = 0.56
+
+gamma_tilt = 4.1 * 1e-26
+
+t_final = 80e-3
+
+T_des = 25e-9
+
+settings_figure_3d = {
+    'm_atom': m_atom,
+    'density_max': 2e20,
+    'V_max': 10.0,
+    'abs_z_restr': 30e-6
+}
+# -------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------
+# lesanovsky_xy (quickstart=false)
+"""
+name_potential = 'lesanovsky_xy'
+
+quickstart = False
+
+N = 14000
+
+u1_final = 0.565
+
+gamma_tilt = 4.1 * 1e-26
+
+t_final = 160e-3
+
+T_des = 25e-9
+
+settings_figure_3d = {
+    'm_atom': m_atom,
+    'density_max': 2e20,
+    'V_max': 10.0,
+    'abs_z_restr': np.inf
+}
+"""
+# -------------------------------------------------------------------------------------------------
+# =================================================================================================
+
+
 
 # -------------------------------------------------------------------------------------------------
 # hdf5
@@ -120,7 +172,6 @@ if export_frames:
 
 
 
-
 # =================================================================================================
 # init solver
 # =================================================================================================
@@ -140,22 +191,12 @@ solver = Solver3D(x_min=x_min,
                   precision=precision,
                   seed=seed)
 
+
 # =================================================================================================
 # init potential
 # =================================================================================================
 
-# solver.init_potential(name='lesanovsky',
-#                       g_F=g_F,
-#                       m_F=m_F,
-#                       m_F_prime=m_F_prime,
-#                       omega_perp=omega_perp,
-#                       omega_para=omega_para,
-#                       omega_delta_detuning=omega_delta_detuning,
-#                       omega_trap_bottom=omega_trap_bottom,
-#                       omega_rabi_max=omega_rabi_max,
-#                       gamma_tilt=gamma_tilt)
-
-solver.init_potential(name='lesanovsky_xy',
+solver.init_potential(name=name_potential,
                       g_F=g_F,
                       m_F=m_F,
                       m_F_prime=m_F_prime,
@@ -251,10 +292,6 @@ assert (times_analysis[-1] == t_final)
 # =================================================================================================
 
 # -------------------------------------------------------------------------------------------------
-quickstart = False
-
-u1_final = 0.56
-
 t_ramp_up = 21.5e-3
 
 t_phase_imprint_part_1 = 1.5e-3
@@ -339,15 +376,6 @@ solver.init_psi('ground_state_solution')
 if visualization:
 
     # ---------------------------------------------------------------------------------------------
-    settings_figure_3d = {
-        "density_max": 1.1 * density_0_max,
-        "density_z_eff_max": 400.0,
-        "V_max": 20.0,
-        "sigma_z_min": 0.2,
-        "sigma_z_max": 0.6,
-        "m_atom": m_Rb_87
-    }
-
     figure_3d = Figure3d(x, y, z, times, settings_figure_3d)
 
     figure_3d.fig_control_inputs_of_times.update_u(u1_of_times, u2_of_times)
@@ -398,7 +426,7 @@ while n_sgpe < n_sgpe_max:
     # ---------------------------------------------------------------------------------------------
     # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
 
-    solver.iter_sgpe(T_des=20e-9, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
+    solver.iter_sgpe(T_des=T_des, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
     # ---------------------------------------------------------------------------------------------
 
     n_sgpe = n_sgpe + n_sgpe_inc
@@ -593,6 +621,7 @@ if export_hdf5:
     tmp = f_hdf5.create_group("time_evolution")
 
     if export_psi_of_times_analysis:
+
         tmp.create_dataset("psi_of_times_analysis", data=psi_of_times_analysis, dtype=np.complex128)
 
     # tmp.create_dataset("density_z_eff_of_times_analysis", data=density_z_eff_of_times_analysis, dtype=np.float64)

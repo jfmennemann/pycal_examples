@@ -48,41 +48,23 @@ class Figure3d(object):
                  settings_figure_3d):
 
 
-        m_atom = settings_figure_3d["m_atom"]
+        m_atom = settings_figure_3d['m_atom']
 
-        density_max = settings_figure_3d["density_max"]
+        density_max = settings_figure_3d['density_max']
 
-        density_z_eff_max = settings_figure_3d["density_z_eff_max"]
+        # density_z_eff_max = settings_figure_3d['density_z_eff_max']
+
+        V_max = settings_figure_3d['V_max']
+
+        abs_z_restr = settings_figure_3d['abs_z_restr']
 
 
-
-        potential_max = 10
-
-        Jx = x.size
-        Jy = y.size
-        Jz = z.size
-        
-        assert(Jx % 2 == 0)
-        assert(Jy % 2 == 0)
-        assert(Jz % 2 == 0)
-        
-        # integer division
-        index_center_x = Jx // 2
-        index_center_y = Jy // 2
-        index_center_z = Jz // 2
-        
-        
-        assert(np.abs(x[index_center_x])<1e-15)
-        assert(np.abs(y[index_center_y])<1e-15)
-        assert(np.abs(z[index_center_z])<1e-15)
-        
-        
-        
-        times = times / 1e-3
-        
         x = x / 1e-6
         y = y / 1e-6
         z = z / 1e-6
+
+        times = times / 1e-3
+
 
         x_min = x[0]
         y_min = y[0]
@@ -94,6 +76,14 @@ class Figure3d(object):
         
         t_min = times[0]
         t_max = times[-1]
+
+        Jx = x.size
+        Jy = y.size
+        Jz = z.size
+
+        abs_z_restr = abs_z_restr / 1e-6
+
+        indices_z_restr = np.abs(z) < abs_z_restr
         
         
 
@@ -163,6 +153,9 @@ class Figure3d(object):
         elif t_max == 80:
             t_ticks_major = np.array([0, 20, 40, 60, 80])
 
+        elif t_max == 160:
+            t_ticks_major = np.array([0, 40, 80, 120, 160])
+
         elif t_max == 200:
             t_ticks_major = np.array([0, 40, 80, 120, 160, 200])
 
@@ -178,11 +171,18 @@ class Figure3d(object):
         settings_graphics = type('', (), {})()
 
         settings_graphics.density_max = density_max
-        settings_graphics.density_z_eff_max = density_z_eff_max
+
+        # settings_graphics.density_z_eff_max = density_z_eff_max
 
 
         settings_graphics.hbar = hbar
         settings_graphics.m_atom = m_atom
+
+        settings_graphics.abs_z_restr = abs_z_restr
+
+        settings_graphics.indices_z_restr = indices_z_restr
+
+
 
 
         settings_graphics.ylabel_density_x_y_z = r'$\mathrm{density} \;\, \mathrm{in} \;\, \mathrm{m}^{-3}$'
@@ -194,8 +194,7 @@ class Figure3d(object):
         settings_graphics.real_part_min = -np.sqrt(settings_graphics.density_max)
         settings_graphics.real_part_max = +np.sqrt(settings_graphics.density_max)
 
-        settings_graphics.potential_min = 0
-        settings_graphics.potential_max = potential_max
+        settings_graphics.V_max = V_max
 
         settings_graphics.phase_difference_of_times_analysis_min = -1.6
         settings_graphics.phase_difference_of_times_analysis_max = +1.6

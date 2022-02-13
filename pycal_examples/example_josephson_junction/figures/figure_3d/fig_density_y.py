@@ -49,7 +49,7 @@ class fig_density_y(object):
         # -----------------------------------------------------------------------------------------
 
         ax_V_y.set_xlim(settings.y_min, settings.y_max)
-        ax_V_y.set_ylim(settings.potential_min, settings.potential_max)
+        ax_V_y.set_ylim(0, settings.V_max)
         
         ax_V_y.set_ylabel(settings.ylabel_V_x_y_z)
         
