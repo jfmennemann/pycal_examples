@@ -98,33 +98,33 @@ visualization = True
 # -------------------------------------------------------------------------------------------------
 # lesanovsky (quickstart=false)
 
-name_potential = 'lesanovsky'
-
-quickstart = False
-
-N = 3500
-
-u1_final = 0.56
-
-gamma_tilt = 4.1 * 1e-26
-
-t_final = 80e-3
-
-T_des = 20e-9
-
-settings_figure_3d = {
-    'm_atom': m_atom,
-    'density_max': 2e20,
-    'V_max': 10.0,
-    'abs_z_restr': 30e-6
-}
+# name_potential = 'lesanovsky_tilt_x'
+#
+# quickstart = False
+#
+# N = 3500
+#
+# u1_final = 0.56
+#
+# gamma_tilt = 4.1 * 1e-26
+#
+# t_final = 80e-3
+#
+# T_des = 20e-9
+#
+# settings_figure_3d = {
+#     'm_atom': m_atom,
+#     'density_max': 2e20,
+#     'V_max': 10.0,
+#     'abs_z_restr': 30e-6
+# }
 
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
 # lesanovsky_xy (quickstart=false)
-"""
-name_potential = 'lesanovsky_xy'
+
+name_potential = 'lesanovsky_xy_tilt_x'
 
 quickstart = False
 
@@ -144,7 +144,7 @@ settings_figure_3d = {
     'V_max': 10.0,
     'abs_z_restr': np.inf
 }
-"""
+
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ if visualization:
 # thermal state sampling
 # =================================================================================================
 
-n_sgpe_max = 10000
+n_sgpe_max = 1000
 
 n_sgpe_inc = 1000
 
