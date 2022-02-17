@@ -133,11 +133,13 @@ solver = Solver3D(x_min=x_min,
 # init potential
 # =================================================================================================
 
-solver.init_potential(name='harmonic_xy_lattice_z',
+solver.init_potential(name='harmonic_xy_gaussian_z',
                       omega_x=omega_perp,
                       omega_y=omega_perp,
                       V_lattice_z_max=2.0 * omega_perp * hbar,
-                      k=8)
+                      k=8,
+                      V_ref_gaussian=hbar*omega_perp,
+                      sigma_gaussian=0.25e-6)
 
 
 
@@ -212,7 +214,7 @@ n_times = times.size
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-n_mod_times_analysis = 100
+n_mod_times_analysis = 50
 
 times_analysis = times[0::n_mod_times_analysis]
 
@@ -290,7 +292,7 @@ settings_figure_3d = {
     "density_max": 1.1 * density_0_max,
     "density_z_eff_max": 400.0,
     "V_min": 0.0,
-    "V_max": 20.0,
+    "V_max": 10.0,
     "sigma_z_min": 0.2,
     "sigma_z_max": 0.6,
     "m_atom": m_Rb_87
