@@ -96,59 +96,59 @@ visualization = True
 # additional parameters
 
 # -------------------------------------------------------------------------------------------------
-# lesanovsky (quickstart=false)
+# lesanovsky
 
-name_potential = 'lesanovsky_tilt_x'
-
-quickstart = False
-
-N = 3500
-
-u1_final = 0.56
-
-gamma_tilt = 4.1 * 1e-26
-
-t_final = 80e-3
-
-T_des = 20e-9
-
-settings_figure_3d = {
-    'm_atom': m_atom,
-    'density_max': 2e20,
-    'V_max': 10.0,
-    'abs_z_restr': 30e-6
-}
-
-# -------------------------------------------------------------------------------------------------
-
-# -------------------------------------------------------------------------------------------------
-# lesanovsky_xy (quickstart=false)
-
-# name_potential = 'lesanovsky_xy_tilt_x'
+# name_potential = 'lesanovsky_tilt_x'
 #
 # quickstart = False
 #
-# N = 14000
+# N = 3500
 #
-# u1_final = 0.565
+# u1_final = 0.56
 #
 # gamma_tilt = 4.1 * 1e-26
 #
-# t_final = 160e-3
+# t_final = 80e-3
 #
-# T_des = 25e-9
+# T_des = 20e-9
 #
 # settings_figure_3d = {
 #     'm_atom': m_atom,
 #     'density_max': 2e20,
 #     'V_max': 10.0,
-#     'abs_z_restr': np.inf
+#     'abs_z_restr': 30e-6
 # }
 
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-# lesanovsky_xy_box_z (quickstart=false)
+# lesanovsky_xy
+
+name_potential = 'lesanovsky_xy_tilt_x'
+
+quickstart = False
+
+N = 14000
+
+u1_final = 0.565
+
+gamma_tilt = 4.1 * 1e-26
+
+t_final = 160e-3
+
+T_des = 25e-9
+
+settings_figure_3d = {
+    'm_atom': m_atom,
+    'density_max': 2e20,
+    'V_max': 10.0,
+    'abs_z_restr': np.inf
+}
+
+# -------------------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------------------
+# lesanovsky_xy_box_z
 
 # name_potential = 'lesanovsky_xy_tilt_x_box_z'
 #
