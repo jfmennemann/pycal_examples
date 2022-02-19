@@ -4,7 +4,7 @@ import os
 
 import h5py
 
-from time import time
+from time import time, sleep
 
 import scipy
 
@@ -57,7 +57,7 @@ gamma_tilt = 4.1 * 1e-26
 
 t_final = 80e-3
 
-T_des = 20e-9
+T = 20e-9
 
 m_Rb_87 = 87 * amu
 
@@ -295,25 +295,26 @@ solver.set_V(u1_0, u2_0)
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
-solver.compute_ground_state_solution(N=N, n_iter=5000)
+psi_0, mu_psi_0 = solver.compute_ground_state_solution(N=N, n_iter=5000)
 
-phi = solver.get('phi')
-
-density_0 = np.abs(phi)**2
-
-density_0_max = np.max(density_0)
-
-mu_phi = solver.get('mu_phi')
-
-print('mu_phi / h: {0:1.4} kHz'.format(mu_phi / (1e3 * (2*pi*hbar))))
+print('mu_psi_0 / h: {0:1.6} kHz\n'.format(mu_psi_0 / (1e3 * (2*pi*hbar))))
 # -------------------------------------------------------------------------------------------------
 
 
 # =================================================================================================
-# set wave function psi to ground state solution
+# set wave function psi to ground state solution psi_0
 # =================================================================================================
 
-solver.init_psi('ground_state_solution')
+# print(psi_0.dtype)
+
+solver.set_psi(psi_0)
+
+# psi = solver.get('psi')
+
+# print(psi.dtype)
+
+# sleep(4)
+
 
 
 
@@ -338,6 +339,10 @@ if visualization:
 
     figure_3d.redraw()
     # ---------------------------------------------------------------------------------------------
+
+else:
+
+    figure_3d = None
 
 
 # =================================================================================================
@@ -372,7 +377,7 @@ while n_sgpe < n_sgpe_max:
     # ---------------------------------------------------------------------------------------------
     # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
 
-    solver.iter_sgpe(T_des=T_des, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
+    solver.iter_sgpe(T_des=T, mu_des=mu_psi_0, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
     # ---------------------------------------------------------------------------------------------
 
     n_sgpe = n_sgpe + n_sgpe_inc
@@ -464,7 +469,7 @@ while n < n_times-1:
     # ---------------------------------------------------------------------------------------------
     # propagate psi for n_inc time steps
 
-    solver.propagate(n, n_inc)
+    solver.propagate(n_start=n, n_inc=n_inc, mu_offset=mu_psi_0)
     # ---------------------------------------------------------------------------------------------
 
     n = n + n_inc
