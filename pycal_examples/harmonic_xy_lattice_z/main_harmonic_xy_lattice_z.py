@@ -6,7 +6,7 @@ import h5py
 
 from time import time
 
-import scipy
+from scipy import constants
 
 from scipy import interpolate
 
@@ -20,15 +20,15 @@ from eval import my_eval
 
 
 # -------------------------------------------------------------------------------------------------
-pi = scipy.constants.pi
+pi = constants.pi
 
-hbar = scipy.constants.hbar
+hbar = constants.hbar
 
-amu = scipy.constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
+amu = constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
 
-mu_B = scipy.constants.physical_constants["Bohr magneton"][0]
+mu_B = constants.physical_constants["Bohr magneton"][0]
 
-k_B = scipy.constants.Boltzmann
+k_B = constants.Boltzmann
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -47,8 +47,6 @@ plt.close('all')
 
 
 
-
-
 # =================================================================================================
 simulation_id = 'lattice_3d'
 
@@ -56,11 +54,11 @@ simulation_id = simulation_id.replace(".", "_")
 
 N = 2000
 
-m_Rb_87 = 87 * amu  # kg
+m_Rb_87 = 87 * amu
 
 m_atom = m_Rb_87
 
-a_s = 5.24e-9  # m
+a_s = 5.24e-9
 
 omega_perp = 2 * np.pi * 1e3
 
@@ -127,6 +125,8 @@ solver = Solver3D(x_min=x_min,
                   device=device,
                   precision=precision,
                   seed=seed)
+
+
 
 # =================================================================================================
 # init potential
@@ -199,6 +199,7 @@ print()
 time_1 = time()
 
 
+
 # =================================================================================================
 # init time evolution
 # =================================================================================================
@@ -247,6 +248,7 @@ u1_of_times = f(times)
 # =================================================================================================
 
 
+
 # =================================================================================================
 # compute ground state solution psi_0
 # =================================================================================================
@@ -268,6 +270,7 @@ density_0 = np.abs(psi_0)**2
 
 density_0_max = np.max(density_0)
 # -------------------------------------------------------------------------------------------------
+
 
 
 # =================================================================================================
@@ -399,7 +402,7 @@ while n < n_times-1:
     # ---------------------------------------------------------------------------------------------
     # propagate psi for n_inc time steps
 
-    solver.propagate(n_start=n, n_inc=n_inc, mu_offset=mu_psi_0)
+    solver.propagate_gpe(n_start=n, n_inc=n_inc, mu_offset=mu_psi_0)
     # ---------------------------------------------------------------------------------------------
 
     n = n + n_inc

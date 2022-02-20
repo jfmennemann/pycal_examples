@@ -6,9 +6,9 @@ import h5py
 
 from time import time
 
-import scipy
-
 import numpy as np
+
+from scipy import constants
 
 import matplotlib.pyplot as plt
 
@@ -18,15 +18,15 @@ from eval import my_eval
 
 
 # -------------------------------------------------------------------------------------------------
-pi = scipy.constants.pi
+pi = constants.pi
 
-hbar = scipy.constants.hbar
+hbar = constants.hbar
 
-amu = scipy.constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
+amu = constants.physical_constants["atomic mass constant"][0]  # atomic mass unit
 
-mu_B = scipy.constants.physical_constants["Bohr magneton"][0]
+mu_B = constants.physical_constants["Bohr magneton"][0]
 
-k_B = scipy.constants.Boltzmann
+k_B = constants.Boltzmann
 # -------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------------------
@@ -47,23 +47,36 @@ plt.close('all')
 # =================================================================================================
 name_potential = 'lesanovsky_xy_tilt_x'
 
-quickstart = False
+quickstart = True
 
 N = 14000
 
 u1_final = 0.565
 
-gamma_tilt = 4.1 * 1e-26
+if quickstart:
+
+    gamma_tilt = 0.0
+
+    # xi_ext = 0.420
+    xi_ext = 0.350
+
+else:
+
+    gamma_tilt = 4.1e-26
+
+    xi_ext = 0.0
+
 
 t_final = 80e-3
 
 T = 25e-9
+# T = 0e-9
 
-m_Rb_87 = 87 * amu  # kg
+m_Rb_87 = 87 * amu
 
 m_atom = m_Rb_87
 
-a_s = 5.24e-9  # m
+a_s = 5.24e-9
 
 g_F = -1/2
 m_F = -1
@@ -174,6 +187,7 @@ z = solver.get('z')
 time_1 = time()
 
 
+
 # =================================================================================================
 # init time evolution
 # =================================================================================================
@@ -195,33 +209,48 @@ assert (times_analysis[-1] == t_final)
 # -------------------------------------------------------------------------------------------------
 
 
-# -------------------------------------------------------------------------------------------------
+
+# =================================================================================================
 # init control inputs
-
-t_ramp_up = 21.5e-3
-
-t_phase_imprint_part_1 = 1.5e-3
-t_phase_imprint_part_2 = 1.5e-3
-t_ramp_down = 3.0e-3
-t_help = 10.0e-3
-
-t0 = 0.0
-t1 = t0 + t_ramp_up
-t2 = t1 + t_phase_imprint_part_1
-t3 = t2 + t_phase_imprint_part_2
-t4 = t3 + t_ramp_down
-t5 = t4 + t_help
+# =================================================================================================
 
 if quickstart:
 
-    u1_0 = u1_final
-    u1_1 = u1_final
-    u1_2 = u1_final
-    u1_3 = u1_final
-    u1_4 = u1_final
-    u1_5 = u1_final
+    t_idle = 5e-3
+
+    t_phase_imprint_part_1 = 1.5e-3
+    t_phase_imprint_part_2 = 1.5e-3
+
+    t0 = 0.0
+    t1 = t0 + t_idle
+    t2 = t1 + t_phase_imprint_part_1
+    t3 = t2 + t_phase_imprint_part_2
+
+    vec_t = np.array([t0, t1, t2, t3])
+
+    vec_u2 = np.array([0, 0, 1, 0])
+
+    u1_of_times = u1_final * np.ones_like(times)
+
+    # u2_of_times = np.interp(times, vec_t, vec_u2)
+
+    u2_of_times = np.zeros_like(times)
 
 else:
+
+    t_ramp_up = 21.5e-3
+
+    t_phase_imprint_part_1 = 1.5e-3
+    t_phase_imprint_part_2 = 1.5e-3
+    t_ramp_down = 3.0e-3
+    t_help = 10.0e-3
+
+    t0 = 0.0
+    t1 = t0 + t_ramp_up
+    t2 = t1 + t_phase_imprint_part_1
+    t3 = t2 + t_phase_imprint_part_2
+    t4 = t3 + t_ramp_down
+    t5 = t4 + t_help
 
     u1_0 = 0.0
     u1_1 = 0.65
@@ -230,14 +259,13 @@ else:
     u1_4 = u1_final
     u1_5 = u1_final
 
-vec_t = np.array([t0, t1, t2, t3, t4, t5])
+    vec_t = np.array([t0, t1, t2, t3, t4, t5])
 
-vec_u1 = np.array([u1_0, u1_1, u1_2, u1_3, u1_4, u1_5])
-vec_u2 = np.array([0, 0, 1, 0, 0, 0])
+    vec_u1 = np.array([u1_0, u1_1, u1_2, u1_3, u1_4, u1_5])
+    vec_u2 = np.array([0, 0, 1, 0, 0, 0])
 
-u1_of_times = np.interp(times, vec_t, vec_u1)
-u2_of_times = np.interp(times, vec_t, vec_u2)
-# -------------------------------------------------------------------------------------------------
+    u1_of_times = np.interp(times, vec_t, vec_u1)
+    u2_of_times = np.interp(times, vec_t, vec_u2)
 
 
 
@@ -259,11 +287,13 @@ print('mu_psi_0 / h: {0:1.6} kHz\n'.format(mu_psi_0 / (1e3 * (2*pi*hbar))))
 # -------------------------------------------------------------------------------------------------
 
 
+
 # =================================================================================================
 # set wave function psi to ground state solution
 # =================================================================================================
 
 solver.set_psi(psi_0)
+
 
 
 # =================================================================================================
@@ -288,6 +318,9 @@ if visualization:
     figure_3d.redraw()
     # ---------------------------------------------------------------------------------------------
 
+else:
+
+    figure_3d = None
 
 
 
@@ -295,38 +328,81 @@ if visualization:
 # thermal state sampling
 # =================================================================================================
 
-n_sgpe_max = 10000
+if T > 0:
 
-n_sgpe_inc = 1000
+    n_sgpe_max = 10000
 
-n_sgpe = 0
+    n_sgpe_inc = 1000
 
-while n_sgpe < n_sgpe_max:
+    n_sgpe = 0
 
-    data = my_eval(solver)
+    while n_sgpe < n_sgpe_max:
 
-    print('----------------------------------------------------------------------------------------')
-    print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
-    print()
-    print('N:      {0:1.4f}'.format(data.N))
-    print('----------------------------------------------------------------------------------------')
-    print()
+        data = my_eval(solver)
 
-    if visualization:
+        print('----------------------------------------------------------------------------------------')
+        print('n_sgpe: {0:4d} / {1:4d}'.format(n_sgpe, n_sgpe_max))
+        print()
+        print('N:      {0:1.4f}'.format(data.N))
+        print('----------------------------------------------------------------------------------------')
+        print()
 
-        # -----------------------------------------------------------------------------------------
-        figure_3d.update_data(data)
+        if visualization:
 
-        figure_3d.redraw()
-        # -----------------------------------------------------------------------------------------
+            # -----------------------------------------------------------------------------------------
+            figure_3d.update_data(data)
 
-    # ---------------------------------------------------------------------------------------------
-    # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
+            figure_3d.redraw()
+            # -----------------------------------------------------------------------------------------
 
-    solver.iter_sgpe(T_des=T, mu_des=mu_psi_0, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
-    # ---------------------------------------------------------------------------------------------
+        # ---------------------------------------------------------------------------------------------
+        # apply thermal state sampling process via sgpe for n_sgpe_inc time steps
 
-    n_sgpe = n_sgpe + n_sgpe_inc
+        solver.propagate_sgpe_z_eff(T_des=T, mu_des=mu_psi_0, gamma=1e-1, dt=dt, n_inc=n_sgpe_inc)
+        # ---------------------------------------------------------------------------------------------
+
+        n_sgpe = n_sgpe + n_sgpe_inc
+
+
+
+# =================================================================================================
+# imprint relative phase difference by hand
+# =================================================================================================
+
+if quickstart:
+
+    psi = solver.get('psi')
+
+    x = solver.get('x')
+
+    phi_ext = 1.1 * xi_ext * pi
+
+    s0 = 0.125e-6
+
+    phase_shift_x = (0.5 * phi_ext) * (2 * np.arctan(x / s0) / pi)
+
+    visualize_phase_shift_x = True
+
+    if visualize_phase_shift_x:
+
+        fig_phase_shift_x = plt.figure("figure_phase_shift_x", figsize=(6, 5), facecolor="white")
+
+        plt.plot(x / 1e-6, phase_shift_x / pi, linewidth=1, linestyle='-', color='k')
+
+        plt.xlim([1.25*x_min/1e-6, 1.25*x_max/1e-6])
+        plt.ylim([-0.4, 0.4])
+
+        plt.xlabel(r'$x$ in $\mu$m')
+        plt.ylabel(r'$\phi\; / \;\pi$')
+
+        plt.grid(b=True, which='major', color='k', linestyle='-', linewidth=0.5)
+
+    phase_shift = phase_shift_x[:, np.newaxis, np.newaxis]
+
+    psi = np.exp(-1j * phase_shift) * psi
+
+    solver.set_psi(psi)
+
 
 
 # =================================================================================================
@@ -417,7 +493,7 @@ while n < n_times-1:
     # ---------------------------------------------------------------------------------------------
     # propagate psi for n_inc time steps
 
-    solver.propagate(n_start=n, n_inc=n_inc, mu_offset=mu_psi_0)
+    solver.propagate_gpe(n_start=n, n_inc=n_inc, mu_offset=mu_psi_0)
     # ---------------------------------------------------------------------------------------------
 
     n = n + n_inc
