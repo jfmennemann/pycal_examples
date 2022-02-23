@@ -47,7 +47,7 @@ plt.close('all')
 # =================================================================================================
 name_potential = 'lesanovsky_xy_tilt_x'
 
-quickstart = True
+quickstart = False
 
 N = 14000
 

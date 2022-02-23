@@ -70,8 +70,8 @@ else:
 
 t_final = 80e-3
 
-# T = 20e-9
-T = 0e-9
+T = 20e-9
+# T = 0e-9
 
 m_Rb_87 = 87 * amu
 
