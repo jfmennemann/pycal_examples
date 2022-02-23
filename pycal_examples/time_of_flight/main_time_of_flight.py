@@ -16,6 +16,7 @@ from figures.figure_3d.figure_3d import Figure3d
 from figures.figure_tof_3d.figure_tof_3d import FigureTof3d
 
 from eval import my_eval
+from eval_tof import my_eval_tof
 
 # -------------------------------------------------------------------------------------------------
 pi = constants.pi
@@ -443,7 +444,7 @@ if quickstart:
 # init time of flight computations
 # =================================================================================================
 
-solver.init_time_of_flight(Jx_tof_stage_1=2*Jx, Jy_tof_stage_1=2*Jy, Jz_tof_stage_1=Jz, t_final_tof_stage_1=1e-3)
+solver.init_time_of_flight(Jx_tof_stage_1=256, Jy_tof_stage_1=384, Jz_tof_stage_1=Jz, t_final_tof_stage_1=2e-3)
 
 x_tof_stage_1 = solver.get('x_tof_stage_1')
 y_tof_stage_1 = solver.get('y_tof_stage_1')
@@ -451,7 +452,18 @@ z_tof_stage_1 = solver.get('z_tof_stage_1')
 
 figure_tof = FigureTof3d(x_tof_stage_1, y_tof_stage_1, z_tof_stage_1)
 
-psi_tof_stage_1 = solver.get('psi_tof_stage_1')
+data_tof = my_eval_tof(solver)
+
+figure_tof.update_data(data_tof)
+
+solver.propagate_gpe_tof_stage_1()
+
+data_tof = my_eval_tof(solver)
+
+figure_tof.update_data(data_tof)
+
+# input()
+
 
 
 # =================================================================================================

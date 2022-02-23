@@ -171,8 +171,15 @@ class FigureTof3d(object):
     
     def update_data(self, data_tof):
 
-        self.fig_tof_xz.update(data_tof.density_tof_xz, data_tof.x_tof, data_tof.z_tof)
-        self.fig_tof_xy.update(data_tof.density_tof_xy, data_tof.x_tof, data_tof.y_tof)
+        density_tof_xz = data_tof.density_xz_tof_stage_1
+        density_tof_xy = data_tof.density_xy_tof_stage_1
+
+        x_tof = data_tof.x_tof_stage_1
+        y_tof = data_tof.y_tof_stage_1
+        z_tof = data_tof.z_tof_stage_1
+
+        self.fig_tof_xz.update(density_tof_xz, x_tof, z_tof)
+        self.fig_tof_xy.update(density_tof_xy, x_tof, y_tof)
 
         # self.fig_tof_profile_x.update(data_tof.profile_tof_x, data_tof.x_tof)
 
